@@ -13,7 +13,7 @@ export default async function Students({ searchParams }: { searchParams: Promise
   const [students, courses, departments, colleges] = await Promise.all([
     db.student.findMany({
       where: {
-        ...(search ? { OR: [{ full_name: { contains: search } }, { unique_student_id: { contains: search } }, { admission_number: { contains: search } }] } : {}),
+        ...(search ? { OR: [{ full_name: { contains: search, mode: 'insensitive' } }, { unique_student_id: { contains: search, mode: 'insensitive' } }, { admission_number: { contains: search, mode: 'insensitive' } }] } : {}),
         ...(course_id ? { course_id: Number(course_id) } : {}),
         ...(status ? { status } : {}),
       },

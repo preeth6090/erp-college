@@ -1,5 +1,5 @@
 // Seed data for the demo college.
-// Demo logins (all use the password "password"):
+// Demo logins (password: "password", or SEED_PASSWORD if set):
 //   admin@webotapp.edu.in, faculty@webotapp.edu.in, student@webotapp.edu.in, parent@webotapp.edu.in
 import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
@@ -28,7 +28,7 @@ async function mk(model: string, data: Record<string, any>): Promise<any> {
 }
 
 async function main() {
-  const password = bcrypt.hashSync('password', 10);
+  const password = bcrypt.hashSync(process.env.SEED_PASSWORD || 'password', 10);
 
 
         // 1. Campuses & Colleges

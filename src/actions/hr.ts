@@ -1,6 +1,6 @@
 'use server';
 
-import bcrypt from 'bcryptjs';
+import { initialPasswordHash } from '@/lib/defaults';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { run, type ActionState } from '@/lib/action';
@@ -24,7 +24,7 @@ export async function storeEmployee(_p: ActionState, fd: FormData): Promise<Acti
     if (d.employee_type === 'Faculty') {
       const role = await db.role.findUnique({ where: { slug: 'faculty' } });
       const user = (await db.user.findUnique({ where: { email: d.email } })) ?? (await db.user.create({
-        data: { name: d.full_name, email: d.email, password: bcrypt.hashSync('password', 10), role_id: role?.id, college_id: d.college_id, phone: d.phone },
+        data: { name: d.full_name, email: d.email, password: initialPasswordHash(), role_id: role?.id, college_id: d.college_id, phone: d.phone },
       }));
       user_id = user.id;
     }

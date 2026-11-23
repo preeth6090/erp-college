@@ -12,7 +12,7 @@ export default async function Library({ searchParams }: { searchParams: Promise<
   await requireRole('super_admin', 'librarian', 'faculty');
   const { search } = await searchParams;
   const [books, issues, members] = await Promise.all([
-    db.libraryBook.findMany({ where: search ? { OR: [{ title: { contains: search } }, { author: { contains: search } }, { isbn: { contains: search } }] } : {}, orderBy: { created_at: 'desc' } }),
+    db.libraryBook.findMany({ where: search ? { OR: [{ title: { contains: search, mode: 'insensitive' } }, { author: { contains: search, mode: 'insensitive' } }, { isbn: { contains: search, mode: 'insensitive' } }] } : {}, orderBy: { created_at: 'desc' } }),
     db.libraryIssue.findMany({ include: { libraryBook: true, user: true }, orderBy: { created_at: 'desc' } }),
     db.user.findMany({ where: { role: { slug: { in: ['student', 'faculty'] } } } }),
   ]);

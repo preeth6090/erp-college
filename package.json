@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@vercel/blob": "^2.9.0",
     "bcryptjs": "^3.0.3",
     "chart.js": "^4.6.1",
     "jose": "^6.2.18",
@@ -40,7 +41,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "author": "Timestamp India",
-  "description": "WebotApp Indian College ERP \u2014 30-module higher-education management system (Next.js, React, Prisma).",
+  "description": "WebotApp Indian College ERP — 30-module higher-education management system (Next.js, React, Prisma).",
   "engines": {
     "node": ">=20"
   }

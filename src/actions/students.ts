@@ -1,6 +1,6 @@
 'use server';
 
-import bcrypt from 'bcryptjs';
+import { initialPasswordHash } from '@/lib/defaults';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { run, UserError, type ActionState } from '@/lib/action';
@@ -25,7 +25,7 @@ export async function enrollStudent(_p: ActionState, fd: FormData): Promise<Acti
     if (await db.student.findUnique({ where: { email: d.email } })) throw new UserError('A student with this email already exists.');
     const role = await db.role.findUnique({ where: { slug: 'student' } });
     const user = (await db.user.findUnique({ where: { email: d.email } })) ?? (await db.user.create({
-      data: { name: d.full_name, email: d.email, password: bcrypt.hashSync('password', 10), role_id: role?.id, college_id: d.college_id, phone: d.phone },
+      data: { name: d.full_name, email: d.email, password: initialPasswordHash(), role_id: role?.id, college_id: d.college_id, phone: d.phone },
     }));
     const seq = (await db.student.count()) + 1;
     const y = new Date().getFullYear();

@@ -8,12 +8,12 @@ A comprehensive Indian College & Higher-Education Management System built with *
 
 ```bash
 npm install
-cp .env.example .env      # set SESSION_SECRET to a long random string
-npm run setup             # generates the client, creates the SQLite DB and loads demo data
+cp .env.example .env      # fill in DATABASE_URL / DIRECT_URL (PostgreSQL, e.g. a free Neon project) and SESSION_SECRET
+npm run setup             # generates the client, creates the tables and loads demo data
 npm run dev               # http://localhost:3000
 ```
 
-Demo logins (password for all: `password`):
+Demo logins (password: `password`, or `SEED_PASSWORD` if you set it before seeding):
 
 | Role | Email |
 | --- | --- |
@@ -33,9 +33,11 @@ Public pages (no login): `/apply` (online admission form), `/track-application`,
 | `npm run db:seed` | Load demo data (run on an empty database) |
 | `npm run typecheck` | TypeScript check |
 
-## Database
+## Database & deployment
 
-SQLite (`prisma/dev.db`) is used by default — free, zero-setup and fine for a single-server, small/mid-scale deployment (back up the file regularly). To move to PostgreSQL (e.g. Neon) later, change `provider` in `prisma/schema.prisma` to `postgresql`, point `DATABASE_URL` at the new database and run `npm run db:push`.
+PostgreSQL via Prisma (`prisma/schema.prisma`). A free [Neon](https://neon.tech) project works well: put its pooled URL in `DATABASE_URL` and its direct URL in `DIRECT_URL`.
+
+Deploying to Vercel: import the repo, set `DATABASE_URL`, `DIRECT_URL` and `SESSION_SECRET`, and connect a Vercel Blob store (it sets `BLOB_READ_WRITE_TOKEN`, which makes file uploads persistent; without it uploads are saved to `public/uploads`, fine for local use only).
 
 ## Project layout
 

@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { createHash } from 'node:crypto';
-import bcrypt from 'bcryptjs';
+import { initialPasswordHash } from '@/lib/defaults';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { run, runPublic, notify, UserError, type ActionState } from '@/lib/action';
@@ -90,7 +90,7 @@ export async function updateApplicationStatus(_p: ActionState, fd: FormData): Pr
       const studentRole = await db.role.findUnique({ where: { slug: 'student' } });
       const collegeId = course.department.college_id;
       const user = (await db.user.findUnique({ where: { email: app.email } })) ?? (await db.user.create({
-        data: { name: app.full_name, email: app.email, password: bcrypt.hashSync('password', 10), role_id: studentRole?.id, phone: app.phone, college_id: collegeId },
+        data: { name: app.full_name, email: app.email, password: initialPasswordHash(), role_id: studentRole?.id, phone: app.phone, college_id: collegeId },
       }));
       const student = (await db.student.findUnique({ where: { email: app.email } })) ?? (await db.student.create({
         data: {
