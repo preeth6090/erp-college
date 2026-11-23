@@ -1,4 +1,4 @@
-# WebotApp Indian College ERP — Complete Higher-Education Management System
+# College ERP — Complete Higher-Education Management System
 
 A comprehensive Indian College & Higher-Education Management System built with **Next.js (React)**, **TypeScript**, **Tailwind CSS** and **Prisma** on **SQLite**. Compliant with **NEP 2020**, **CBCS**, **AISHE**, and **NAAC / NIRF** requirements.
 
@@ -17,10 +17,10 @@ Demo logins (password: `password`, or `SEED_PASSWORD` if you set it before seedi
 
 | Role | Email |
 | --- | --- |
-| Super Admin | admin@webotapp.edu.in |
-| Faculty | faculty@webotapp.edu.in |
-| Student | student@webotapp.edu.in |
-| Parent | parent@webotapp.edu.in |
+| Super Admin | admin@college.edu.in |
+| Faculty | faculty@college.edu.in |
+| Student | student@college.edu.in |
+| Parent | parent@college.edu.in |
 
 Public pages (no login): `/apply` (online admission form), `/track-application`, `/verify-certificate/<token>`.
 

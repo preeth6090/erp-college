@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: { default: 'WebotApp Indian College ERP', template: '%s — WebotApp Indian College ERP' },
+  title: { default: 'College ERP', template: '%s — College ERP' },
   description: 'Complete 30-module Indian college & higher-education management system (NEP 2020, NAAC ready).',
   authors: [{ name: 'Timestamp India' }],
   creator: 'Timestamp India',

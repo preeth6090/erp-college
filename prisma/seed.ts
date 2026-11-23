@@ -1,6 +1,6 @@
 // Seed data for the demo college.
 // Demo logins (password: "password", or SEED_PASSWORD if set):
-//   admin@webotapp.edu.in, faculty@webotapp.edu.in, student@webotapp.edu.in, parent@webotapp.edu.in
+//   admin@college.edu.in, faculty@college.edu.in, student@college.edu.in, parent@college.edu.in
 import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
@@ -34,28 +34,28 @@ async function main() {
         // 1. Campuses & Colleges
         const mainCampus = await mk('Campus', {
             code: 'BLR-01',
-            name: 'WebotApp Main Campus',
+            name: 'Main Campus',
             city: 'Bengaluru',
             state: 'Karnataka',
             address: '120 Knowledge Park, Yelahanka, Bengaluru - 560064',
             phone: '+91-80-28460000',
-            email: 'info@webotapp.edu.in',
+            email: 'info@college.edu.in',
         });
 
         const northCampus = await mk('Campus', {
             code: 'PUN-02',
-            name: 'WebotApp Pune Campus',
+            name: 'Pune Campus',
             city: 'Pune',
             state: 'Maharashtra',
             address: '45 Hinjewadi Phase 2, Pune - 411057',
             phone: '+91-20-22930000',
-            email: 'pune@webotapp.edu.in',
+            email: 'pune@college.edu.in',
         });
 
         const collegeTech = await mk('College', {
             campus_id: mainCampus.id,
             code: 'WAIT',
-            name: 'WebotApp Institute of Technology',
+            name: 'Institute of Technology',
             university_affiliation: 'Visvesvaraya Technological University (VTU)',
             aishe_code: 'C-12345',
             naac_grade: 'A+',
@@ -65,7 +65,7 @@ async function main() {
         const collegeArts = await mk('College', {
             campus_id: northCampus.id,
             code: 'WACAC',
-            name: 'WebotApp College of Arts & Commerce',
+            name: 'College of Arts & Commerce',
             university_affiliation: 'Savitribai Phule Pune University (SPPU)',
             aishe_code: 'C-54321',
             naac_grade: 'A',
@@ -117,7 +117,7 @@ async function main() {
         // 4. Demo Users
         const adminUser = await mk('User', {
             name: 'Dr. Raghavendra Rao (Admin)',
-            email: 'admin@webotapp.edu.in',
+            email: 'admin@college.edu.in',
             password: password,
             role_id: roles['super_admin'].id,
             campus_id: mainCampus.id,
@@ -127,7 +127,7 @@ async function main() {
 
         const facultyUser = await mk('User', {
             name: 'Prof. Ananya Sharma',
-            email: 'faculty@webotapp.edu.in',
+            email: 'faculty@college.edu.in',
             password: password,
             role_id: roles['faculty'].id,
             campus_id: mainCampus.id,
@@ -137,7 +137,7 @@ async function main() {
 
         const studentUser = await mk('User', {
             name: 'Aarav Kulkarni',
-            email: 'student@webotapp.edu.in',
+            email: 'student@college.edu.in',
             password: password,
             role_id: roles['student'].id,
             campus_id: mainCampus.id,
@@ -147,7 +147,7 @@ async function main() {
 
         const parentUser = await mk('User', {
             name: 'Suresh Kulkarni',
-            email: 'parent@webotapp.edu.in',
+            email: 'parent@college.edu.in',
             password: password,
             role_id: roles['parent'].id,
             campus_id: mainCampus.id,
@@ -239,7 +239,7 @@ async function main() {
             department_id: deptCse.id,
             staff_id: 'FAC-101',
             full_name: 'Prof. Ananya Sharma',
-            email: 'faculty@webotapp.edu.in',
+            email: 'faculty@college.edu.in',
             phone: '9845022222',
             employee_type: 'Faculty',
             designation: 'Associate Professor',
@@ -259,7 +259,7 @@ async function main() {
             department_id: deptCse.id,
             staff_id: 'FAC-102',
             full_name: 'Dr. Vikramaditya Nair',
-            email: 'vikram.nair@webotapp.edu.in',
+            email: 'vikram.nair@college.edu.in',
             phone: '9845033333',
             employee_type: 'Faculty',
             designation: 'Professor & HOD',
@@ -275,7 +275,7 @@ async function main() {
             department_id: deptEce.id,
             staff_id: 'FAC-103',
             full_name: 'Dr. Kavita Iyer',
-            email: 'kavita.iyer@webotapp.edu.in',
+            email: 'kavita.iyer@college.edu.in',
             phone: '9845044444',
             employee_type: 'Faculty',
             designation: 'Professor',
@@ -291,7 +291,7 @@ async function main() {
             department_id: deptCse.id,
             staff_id: 'STF-201',
             full_name: 'Mahesh Hegde',
-            email: 'mahesh.hegde@webotapp.edu.in',
+            email: 'mahesh.hegde@college.edu.in',
             phone: '9845055555',
             employee_type: 'Non-Teaching',
             designation: 'Chief Warden & Lab Superintendent',
@@ -375,12 +375,12 @@ async function main() {
 
         // 9. Students & Guardians
         const studentsData = [
-            ['Aarav Kulkarni', 'student@webotapp.edu.in', '9900112233', 'Male', 'General', 'WA26CS001', 'ADM-2026-001', '1WA25CS001', studentUser.id],
-            ['Priya Deshpande', 'priya.d@webotapp.edu.in', '9900112234', 'Female', 'EWS', 'WA26CS002', 'ADM-2026-002', '1WA25CS002', null],
-            ['Rohan Verma', 'rohan.v@webotapp.edu.in', '9900112235', 'Male', 'OBC', 'WA26CS003', 'ADM-2026-003', '1WA25CS003', null],
-            ['Sneha Patil', 'sneha.p@webotapp.edu.in', '9900112236', 'Female', 'SC', 'WA26CS004', 'ADM-2026-004', '1WA25CS004', null],
-            ['Karthik Reddy', 'karthik.r@webotapp.edu.in', '9900112237', 'Male', 'General', 'WA26CS005', 'ADM-2026-005', '1WA25CS005', null],
-            ['Anjali Kumari', 'anjali.k@webotapp.edu.in', '9900112238', 'Female', 'ST', 'WA26CS006', 'ADM-2026-006', '1WA25CS006', null],
+            ['Aarav Kulkarni', 'student@college.edu.in', '9900112233', 'Male', 'General', 'WA26CS001', 'ADM-2026-001', '1WA25CS001', studentUser.id],
+            ['Priya Deshpande', 'priya.d@college.edu.in', '9900112234', 'Female', 'EWS', 'WA26CS002', 'ADM-2026-002', '1WA25CS002', null],
+            ['Rohan Verma', 'rohan.v@college.edu.in', '9900112235', 'Male', 'OBC', 'WA26CS003', 'ADM-2026-003', '1WA25CS003', null],
+            ['Sneha Patil', 'sneha.p@college.edu.in', '9900112236', 'Female', 'SC', 'WA26CS004', 'ADM-2026-004', '1WA25CS004', null],
+            ['Karthik Reddy', 'karthik.r@college.edu.in', '9900112237', 'Male', 'General', 'WA26CS005', 'ADM-2026-005', '1WA25CS005', null],
+            ['Anjali Kumari', 'anjali.k@college.edu.in', '9900112238', 'Female', 'ST', 'WA26CS006', 'ADM-2026-006', '1WA25CS006', null],
         ];
 
         const students: any[] = [];
@@ -418,7 +418,7 @@ async function main() {
                 relation: 'Father',
                 name: idx === 0 ? 'Suresh Kulkarni' : 'Mr. ' + sd[0] + ' Sr.',
                 phone: '984509988' + idx,
-                email: idx === 0 ? 'parent@webotapp.edu.in' : null,
+                email: idx === 0 ? 'parent@college.edu.in' : null,
                 occupation: 'Engineer',
                 annual_income: 850000,
             });
@@ -563,7 +563,7 @@ async function main() {
         // 12. Library Books & Issues
         const book1 = await mk('LibraryBook', {isbn: '978-0262046305', accession_no: 'ACC-1001', barcode: 'LIB1001', title: 'Introduction to Algorithms (CLRS)', author: 'Thomas H. Cormen', publisher: 'MIT Press', subject_category: 'Computer Science', rack_location: 'R1-A2', total_copies: 10, available_copies: 8});
         const book2 = await mk('LibraryBook', {isbn: '978-0078022159', accession_no: 'ACC-1002', barcode: 'LIB1002', title: 'Database System Concepts', author: 'Silberschatz, Korth', publisher: 'McGraw Hill', subject_category: 'Database', rack_location: 'R1-B4', total_copies: 8, available_copies: 7});
-        await mk('LibraryBook', {isbn: '978-0134685991', accession_no: 'ACC-1003', barcode: 'LIB1003', title: 'Effective Java', author: 'Joshua Bloch', publisher: 'Addison-Wesley', subject_category: 'Programming', rack_location: 'R2-C1', book_type: 'E-Book', ebook_url: 'https://library.webotapp.edu.in/ebooks/effective-java.pdf', total_copies: 1, available_copies: 1});
+        await mk('LibraryBook', {isbn: '978-0134685991', accession_no: 'ACC-1003', barcode: 'LIB1003', title: 'Effective Java', author: 'Joshua Bloch', publisher: 'Addison-Wesley', subject_category: 'Programming', rack_location: 'R2-C1', book_type: 'E-Book', ebook_url: 'https://library.college.edu.in/ebooks/effective-java.pdf', total_copies: 1, available_copies: 1});
 
         await mk('LibraryIssue', {
             library_book_id: book1.id,
@@ -670,7 +670,7 @@ async function main() {
         await mk('TransportAllocation', {transport_route_id: route1.id, student_id: students[1].id, pickup_stop: 'Hebbal', start_date: '2026-07-15'});
 
         // 15. LMS
-        await mk('LmsMaterial', {subject_id: subDbms.id, faculty_id: fac1.id, title: 'Unit 1: ER Model & Relational Algebra Notes', material_type: 'PDF', file_url: 'https://lms.webotapp.edu.in/dbms-unit1.pdf', description: 'Comprehensive lecture notes with solved GATE questions.'});
+        await mk('LmsMaterial', {subject_id: subDbms.id, faculty_id: fac1.id, title: 'Unit 1: ER Model & Relational Algebra Notes', material_type: 'PDF', file_url: 'https://lms.college.edu.in/dbms-unit1.pdf', description: 'Comprehensive lecture notes with solved GATE questions.'});
         const assign = await mk('LmsAssignment', {subject_id: subDbms.id, faculty_id: fac1.id, title: 'Assignment 1: Normalize College Schema to BCNF', description: 'Submit SQL DDL and normalization steps.', due_date: daysFromNow(7), max_marks: 20});
         await mk('LmsSubmission', {lms_assignment_id: assign.id, student_id: students[0].id, submission_url: 'https://github.com/aarav/dbms-bcnf', submission_notes: 'Completed all 5 relations.', submitted_at: new Date(), marks_obtained: 18, feedback: 'Well structured ER diagram.'});
         await mk('LmsDiscussion', {subject_id: subDbms.id, user_id: studentUser.id, topic: 'Difference between 3NF and BCNF', message: 'Can someone share a practical example where 3NF is satisfied but BCNF fails?'});
@@ -685,7 +685,7 @@ async function main() {
 
         // 17. Scholarships, Certificates, Grievances, Events, Alumni
         const sch1 = await mk('Scholarship', {name: 'NSP Post-Matric SC/ST Scholarship', scheme_type: 'Government', amount: 25000, eligibility_criteria: 'SC/ST category with family income < 2.5 LPA', academic_session_id: session.id});
-        const sch2 = await mk('Scholarship', {name: 'WebotApp Merit Excellence Award', scheme_type: 'Merit', amount: 15000, eligibility_criteria: 'SGPA >= 9.0', academic_session_id: session.id});
+        const sch2 = await mk('Scholarship', {name: 'Merit Excellence Award', scheme_type: 'Merit', amount: 15000, eligibility_criteria: 'SGPA >= 9.0', academic_session_id: session.id});
         await mk('ScholarshipApplication', {scholarship_id: sch1.id, student_id: students[3].id, status: 'Approved', disbursed_amount: 25000, disbursed_at: daysFromNow(-(10))});
         await mk('ScholarshipApplication', {scholarship_id: sch2.id, student_id: students[0].id, status: 'Verified'});
 
@@ -711,7 +711,7 @@ async function main() {
         });
 
         await mk('CampusEvent', {title: 'TechUtsav 2026 - National Hackathon', category: 'Workshop', event_date: daysFromNow(12), venue: 'Main Auditorium', budget: 150000, department_id: deptCse.id, status: 'Planned'});
-        await mk('Alumnus', {full_name: 'Nikhil Kamath (Batch 2021)', email: 'nikhil@alumni.webotapp.edu.in', phone: '9880098800', graduation_year: 2021, course_id: courseBtech.id, current_company: 'Google India', designation: 'Senior Software Engineer', city: 'Bengaluru', is_mentor: true, donation_total: 50000});
+        await mk('Alumnus', {full_name: 'Nikhil Kamath (Batch 2021)', email: 'nikhil@alumni.college.edu.in', phone: '9880098800', graduation_year: 2021, course_id: courseBtech.id, current_company: 'Google India', designation: 'Senior Software Engineer', city: 'Bengaluru', is_mentor: true, donation_total: 50000});
 
         // 18. Accreditation (NAAC/NIRF/AISHE) & Research
         await mk('AccreditationRecord', {framework: 'NAAC', cycle_year: '2026-27', criterion: 'Criterion 1: Curricular Aspects', metric_code: '1.1.1', title: 'NEP 2020 & CBCS Curriculum Implementation', score_or_value: '3.65 / 4.00', department_id: deptCse.id, status: 'Verified'});
@@ -726,9 +726,9 @@ async function main() {
         await mk('Announcement', {title: 'Fee Payment Reminder: Odd Semester Due 30 Nov', message: 'Students with pending tuition fees are requested to clear dues via UPI/NetBanking to avoid late penalty.', target_audience: 'Students', channel: 'WhatsApp', published_at: new Date(), created_by: adminUser.id});
 
         await mk('NotificationLog', {recipient_name: 'Aarav Kulkarni', recipient_contact: '9900112233', channel: 'WhatsApp', subject: 'Admit Card Ready', message: 'Your Nov 2026 Admit Card is ready for download.', status: 'Sent', sent_at: new Date()});
-        await mk('AuditLog', {user_id: adminUser.id, action: 'SEED_INITIALIZED', module: 'System', description: 'Initialized WebotApp Indian College Management Software with 30 modules.', ip_address: '127.0.0.1'});
+        await mk('AuditLog', {user_id: adminUser.id, action: 'SEED_INITIALIZED', module: 'System', description: 'Initialized Indian College Management Software with 30 modules.', ip_address: '127.0.0.1'});
 
-        await mk('SystemSetting', {group_name: 'general', key: 'institution_name', value: 'WebotApp University Group'});
+        await mk('SystemSetting', {group_name: 'general', key: 'institution_name', value: 'University Group'});
         await mk('SystemSetting', {group_name: 'grading', key: 'grading_scale', value: JSON.stringify({ O: 10, 'A+': 9, A: 8, 'B+': 7, B: 6, C: 5, F: 0 })});
         await mk('SystemSetting', {group_name: 'integrations', key: 'payment_gateway', value: 'Razorpay (UPI / Cards / NetBanking)'});
         await mk('SystemSetting', {group_name: 'integrations', key: 'whatsapp_provider', value: 'Meta WhatsApp Business Cloud API'});

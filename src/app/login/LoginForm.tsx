@@ -12,7 +12,7 @@ export function LoginForm() {
       {state?.error && <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{state.error}</div>}
       <label className="block">
         <span className="mb-1 block text-xs font-medium text-slate-700">Email Address</span>
-        <input name="email" type="email" required autoFocus autoComplete="email" defaultValue={state?.email} placeholder="you@webotapp.edu.in" className={inputCls} />
+        <input name="email" type="email" required autoFocus autoComplete="email" defaultValue={state?.email} placeholder="you@college.edu.in" className={inputCls} />
       </label>
       <label className="block">
         <span className="mb-1 block text-xs font-medium text-slate-700">Password</span>

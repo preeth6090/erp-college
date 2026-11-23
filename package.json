@@ -1,5 +1,5 @@
 {
-  "name": "webotapp-college-erp",
+  "name": "college-erp",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -41,7 +41,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "author": "Timestamp India",
-  "description": "WebotApp Indian College ERP — 30-module higher-education management system (Next.js, React, Prisma).",
+  "description": "College ERP — 30-module higher-education management system (Next.js, React, Prisma).",
   "engines": {
     "node": ">=20"
   }

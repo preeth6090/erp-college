@@ -16,7 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <aside className="no-print flex w-64 flex-shrink-0 flex-col bg-slate-900 text-slate-200">
         <div className="border-b border-slate-800 px-5 py-4">
           <div className="text-lg font-bold tracking-tight text-white">
-            Webot<span className="text-amber-400">App</span> <span className="text-xs font-normal text-indigo-400">ERP</span>
+            College <span className="text-xs font-normal text-indigo-400">ERP</span>
           </div>
           <div className="text-[11px] text-slate-400">Indian Higher-Ed Suite (30 Modules)</div>
         </div>

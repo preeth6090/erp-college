@@ -12,9 +12,9 @@ export default async function LoginPage() {
     <div className="flex min-h-screen flex-col bg-slate-100">
       <header className="bg-slate-900 px-6 py-4 text-white">
         <span className="text-xl font-bold tracking-tight">
-          Webot<span className="text-amber-400">App</span> <span className="text-sm font-semibold text-indigo-400">ERP</span>
+          College <span className="text-sm font-semibold text-indigo-400">ERP</span>
         </span>
-        <span className="ml-2 text-xs text-slate-400">WebotApp University Group</span>
+        <span className="ml-2 text-xs text-slate-400">University Group</span>
       </header>
       <main className="container mx-auto flex-1 px-4 py-8">
         <div className="mx-auto mt-8 max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">

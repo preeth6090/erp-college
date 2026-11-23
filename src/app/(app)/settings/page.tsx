@@ -15,7 +15,7 @@ export default async function Settings() {
     db.auditLog.findMany({ include: { user: true }, orderBy: { created_at: 'desc' }, take: 30 }),
   ]);
   const campusOpts = campuses.map((c) => ({ value: c.id, label: c.name }));
-  const institution = settings.find((s) => s.key === 'institution_name')?.value ?? 'WebotApp University Group';
+  const institution = settings.find((s) => s.key === 'institution_name')?.value ?? 'University Group';
   return (
     <div className="space-y-4">
       <PageHeader title="System Administration, RBAC, Audit & Backup" />
