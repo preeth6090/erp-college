@@ -49,10 +49,16 @@ export async function storeVoucher(_p: ActionState, fd: FormData): Promise<Actio
     );
     if (d.debit_account_id === d.credit_account_id) throw new UserError('Debit and credit accounts must be different.');
     const voucher_no = `VCH-${year()}-${rand(100, 999)}`;
+    // Double entry: assets & expenses are debit-normal; liabilities, equity & income are credit-normal.
+    const [dr, cr] = await Promise.all([
+      db.chartOfAccount.findUniqueOrThrow({ where: { id: d.debit_account_id } }),
+      db.chartOfAccount.findUniqueOrThrow({ where: { id: d.credit_account_id } }),
+    ]);
+    const debitNormal = (t: string) => t === 'Asset' || t === 'Expense';
     await db.$transaction([
       db.financialVoucher.create({ data: { ...d, voucher_no, created_by: user.id } }),
-      db.chartOfAccount.update({ where: { id: d.debit_account_id }, data: { balance: { increment: d.amount } } }),
-      db.chartOfAccount.update({ where: { id: d.credit_account_id }, data: { balance: { increment: d.amount } } }),
+      db.chartOfAccount.update({ where: { id: dr.id }, data: { balance: { increment: debitNormal(dr.account_type) ? d.amount : -d.amount } } }),
+      db.chartOfAccount.update({ where: { id: cr.id }, data: { balance: { increment: debitNormal(cr.account_type) ? -d.amount : d.amount } } }),
     ]);
     return `Voucher ${voucher_no} posted to General Ledger.`;
   });

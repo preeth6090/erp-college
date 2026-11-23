@@ -6,7 +6,14 @@ import { SignJWT, jwtVerify } from 'jose';
 import { db } from './db';
 
 const COOKIE = 'erp_session';
-const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET ?? 'dev-only-secret-change-me-please-0123456789');
+const secret = () => {
+  const s = process.env.SESSION_SECRET;
+  if (!s || s.length < 32) {
+    if (process.env.NODE_ENV === 'production') throw new Error('SESSION_SECRET must be set to a random string of at least 32 characters.');
+    return new TextEncoder().encode('dev-only-secret-change-me-please-0123456789');
+  }
+  return new TextEncoder().encode(s);
+};
 
 export type Role = 'super_admin' | 'faculty' | 'student' | 'parent' | 'accountant' | 'librarian';
 
