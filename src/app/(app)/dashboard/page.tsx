@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { unstable_cache } from 'next/cache';
 import { db } from '@/lib/db';
 import { requireRole } from '@/lib/auth';
 import { BarChart, DoughnutChart, LineChart, PieChart } from '@/components/Charts';
@@ -12,8 +13,8 @@ export const dynamic = 'force-dynamic';
 const pct = (a: number, b: number) => (b ? Math.round((a / b) * 1000) / 10 : 0);
 const dayKey = (d: Date) => d.toISOString().slice(0, 10);
 
-export default async function Dashboard() {
-  const user = await requireRole('super_admin');
+/** All dashboard numbers, cached for 60 s so refreshes don't hammer the (free-tier) database. */
+const loadDashboard = unstable_cache(async () => {
   const today = todayDate();
   const tomorrow = addDays(today, 1);
   const from10 = addDays(today, -9);
@@ -85,20 +86,72 @@ export default async function Dashboard() {
   const income = vsum('Receipt') + collected;
   const expense = vsum('Payment');
   const conv = pct(convertedEnq, enquiries);
+  const pendingTotal = pendingLeaves + openGrievances + pendingAdmissions + pendingScholarships + overdue + pendingReq;
+  const monthLabels = months.map(monthLabel);
+  const dayLabels = days.map((d) => d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', timeZone: 'UTC' }));
+  return { totalStudents, newStudents30, faculty, staff, enquiries, applications, attPct, todayAtt, feeByMonth, feeTrend, collected, outstanding, billed, feeAgg, income, expense, conv, books, overdue, issued, drives, placementApps, selected, courses, depts, upcomingExams, events, announcements, grades, budgets, audit, pendingLeaves, openGrievances, pendingAdmissions, pendingScholarships, lowStock, pendingReq, verified, meritListed, confirmed, pendingTotal, monthLabels, dayLabels };
+}, ['dashboard-v2'], { revalidate: 60 });
+
+export default async function Dashboard() {
+  const user = await requireRole('super_admin');
+  const {
+    totalStudents,
+    newStudents30,
+    faculty,
+    staff,
+    enquiries,
+    applications,
+    attPct,
+    todayAtt,
+    feeByMonth,
+    feeTrend,
+    collected,
+    outstanding,
+    billed,
+    feeAgg,
+    income,
+    expense,
+    conv,
+    books,
+    overdue,
+    issued,
+    drives,
+    placementApps,
+    selected,
+    courses,
+    depts,
+    upcomingExams,
+    events,
+    announcements,
+    grades,
+    budgets,
+    audit,
+    pendingLeaves,
+    openGrievances,
+    pendingAdmissions,
+    pendingScholarships,
+    lowStock,
+    pendingReq,
+    verified,
+    meritListed,
+    confirmed,
+    pendingTotal,
+    monthLabels,
+    dayLabels,
+  } = await loadDashboard();
   const hour = new Date().toLocaleString('en-IN', { hour: 'numeric', hour12: false, timeZone: 'Asia/Kolkata' });
   const greet = Number(hour) < 12 ? 'Good morning' : Number(hour) < 17 ? 'Good afternoon' : 'Good evening';
-  const pendingTotal = pendingLeaves + openGrievances + pendingAdmissions + pendingScholarships + overdue + pendingReq;
 
   return (
     <div className="space-y-5">
       {/* hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-700 via-indigo-600 to-violet-600 p-6 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-700 via-indigo-600 to-violet-600 p-4 text-white sm:rounded-3xl sm:p-6 shadow-lg">
         <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
         <div className="absolute -bottom-16 right-32 h-40 w-40 rounded-full bg-fuchsia-400/20 blur-2xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-sm text-indigo-100">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Kolkata' })}</p>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight">{greet}, {user.name.split(' (')[0]} 👋</h2>
+            <h2 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">{greet}, {user.name.split(' (')[0]} 👋</h2>
             <p className="mt-1 text-sm text-indigo-100">{pendingTotal > 0 ? `${pendingTotal} items need your attention today.` : 'Everything is up to date.'} Academic Year 2026-27 • Odd Semester</p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs font-medium">
@@ -124,7 +177,7 @@ export default async function Dashboard() {
       {/* trend row */}
       <div className="grid gap-4 xl:grid-cols-3">
         <Panel title="Fee collection" subtitle="Last 6 months, completed payments" className="xl:col-span-2">
-          <div className="h-64"><LineChart labels={months.map(monthLabel)} series={[{ label: 'Collected', data: feeByMonth, color: '#4f46e5' }]} money /></div>
+          <div className="h-64"><LineChart labels={monthLabels} series={[{ label: 'Collected', data: feeByMonth, color: '#4f46e5' }]} money /></div>
         </Panel>
         <Panel title="Finance snapshot" subtitle="Revenue vs expense vs dues">
           <div className="h-64"><DoughnutChart labels={['Revenue', 'Expense', 'Outstanding fees']} data={[income, expense, outstanding]} colors={['#10b981', '#f43f5e', '#f59e0b']} money /></div>
@@ -133,7 +186,7 @@ export default async function Dashboard() {
 
       <div className="grid gap-4 xl:grid-cols-3">
         <Panel title="Attendance trend" subtitle="Last 10 days, present + late">
-          <div className="h-56"><LineChart labels={days.map((d) => d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', timeZone: 'UTC' }))} series={[{ label: 'Attendance', data: attPct, color: '#10b981' }]} percent /></div>
+          <div className="h-56"><LineChart labels={dayLabels} series={[{ label: 'Attendance', data: attPct, color: '#10b981' }]} percent /></div>
         </Panel>
         <Panel title="Students by programme" subtitle="Active enrolment">
           <div className="h-56"><BarChart labels={courses.map((c) => c.code)} data={courses.map((c) => c._count.students)} horizontal /></div>
@@ -173,13 +226,13 @@ export default async function Dashboard() {
             {upcomingExams.length + events.length === 0 && <p className="text-sm text-slate-400">Nothing scheduled.</p>}
             {upcomingExams.map((e) => (
               <div key={`e${e.id}`} className="flex items-center gap-3">
-                <div className="w-12 shrink-0 rounded-xl bg-indigo-50 py-1.5 text-center"><div className="text-[10px] font-semibold uppercase text-indigo-500">{e.start_date.toLocaleString('en-IN', { month: 'short', timeZone: 'UTC' })}</div><div className="text-lg font-bold leading-none text-indigo-700">{e.start_date.getUTCDate()}</div></div>
+                <div className="w-12 shrink-0 rounded-xl bg-indigo-50 py-1.5 text-center"><div className="text-[10px] font-semibold uppercase text-indigo-500">{new Date(e.start_date).toLocaleString('en-IN', { month: 'short', timeZone: 'UTC' })}</div><div className="text-lg font-bold leading-none text-indigo-700">{new Date(e.start_date).getUTCDate()}</div></div>
                 <div className="min-w-0"><div className="truncate text-sm font-medium">{e.name}</div><div className="text-xs text-slate-500">{e.course.code} • Sem {e.semester} • {e.exam_type}</div></div>
               </div>
             ))}
             {events.map((e) => (
               <div key={`v${e.id}`} className="flex items-center gap-3">
-                <div className="w-12 shrink-0 rounded-xl bg-amber-50 py-1.5 text-center"><div className="text-[10px] font-semibold uppercase text-amber-600">{e.event_date.toLocaleString('en-IN', { month: 'short', timeZone: 'UTC' })}</div><div className="text-lg font-bold leading-none text-amber-700">{e.event_date.getUTCDate()}</div></div>
+                <div className="w-12 shrink-0 rounded-xl bg-amber-50 py-1.5 text-center"><div className="text-[10px] font-semibold uppercase text-amber-600">{new Date(e.event_date).toLocaleString('en-IN', { month: 'short', timeZone: 'UTC' })}</div><div className="text-lg font-bold leading-none text-amber-700">{new Date(e.event_date).getUTCDate()}</div></div>
                 <div className="min-w-0"><div className="truncate text-sm font-medium">{e.title}</div><div className="text-xs text-slate-500">{e.venue} • {e.category}</div></div>
               </div>
             ))}

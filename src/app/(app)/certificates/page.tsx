@@ -27,7 +27,7 @@ export default async function Certificates() {
           {certs.map((c) => (
             <tr key={c.id}>
               <Td className="font-mono text-xs">{c.certificate_no}</Td><Td>{c.student.full_name}</Td><Td>{c.certificate_type}</Td><Td>{fmtDate(c.issue_date)}</Td>
-              <Td><div className="flex gap-1"><LinkButton href={`/certificates/${c.id}/print`} target="_blank">Print Certificate</LinkButton><LinkButton href={`/verify-certificate/${c.verification_token}`} target="_blank">QR Verify Link</LinkButton></div></Td>
+              <Td><div className="flex flex-wrap items-center gap-1"><LinkButton href={`/certificates/${c.id}/print`} target="_blank">Print Certificate</LinkButton><LinkButton href={`/verify-certificate/${c.verification_token}`} target="_blank">QR Verify Link</LinkButton></div></Td>
             </tr>
           ))}
         </Table>

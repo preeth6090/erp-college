@@ -18,7 +18,7 @@ export default async function TrackPage({ searchParams }: { searchParams: Promis
       )}
       <h1 className="text-xl font-bold text-slate-900">Application Tracking Portal</h1>
       <p className="mb-4 mt-1 text-xs text-slate-500">Enter your Application Number (e.g. <code>APP-2026-1001</code>) to check verification, merit rank, and admission status.</p>
-      <form method="GET" className="flex gap-2">
+      <form method="GET" className="flex flex-wrap gap-2">
         <input name="application_no" defaultValue={no} placeholder="Enter Application Number..." className={inputCls} />
         <button className="rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white">Track Status</button>
       </form>

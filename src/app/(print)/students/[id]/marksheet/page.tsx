@@ -22,8 +22,8 @@ export default async function Marksheet({ params }: { params: Promise<{ id: stri
   const weighted = marks.reduce((a, m) => a + (m.credits ?? 0) * (m.grade_point ?? 0), 0);
   const sgpa = credits ? Math.round((weighted / credits) * 100) / 100 : 0;
   return (
-    <div className="print-full rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-      <div className="mb-4 flex items-start justify-between border-b pb-3">
+    <div className="print-full rounded-xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b pb-3">
         <div>
           <h2 className="text-lg font-bold">{s.college.name}</h2>
           <p className="text-xs text-slate-500">{s.college.university_affiliation ?? 'Autonomous / Affiliated University'} • NEP 2020 CBCS Grade Card</p>

@@ -24,7 +24,7 @@ export default async function ParentPortal({ searchParams }: { searchParams: Pro
     <div className="space-y-4">
       <PageHeader title="Parent / Guardian Portal" />
       <Card title="Linked Ward / Child Switcher">
-        <form method="GET" className="flex gap-2">
+        <form method="GET" className="flex flex-wrap gap-2">
           <select name="student_id" defaultValue={child.id} className={inputCls + ' w-auto'}>
             {children.map((c) => <option key={c.id} value={c.id}>{c.full_name} ({c.unique_student_id})</option>)}
           </select>

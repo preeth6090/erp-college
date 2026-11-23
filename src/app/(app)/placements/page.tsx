@@ -47,7 +47,7 @@ export default async function Placements() {
               <Td>{a.student.full_name}<div className="text-xs text-slate-500">{a.student.course.code}</div></Td>
               <Td>{a.placementDrive.placementCompany.name} • {a.placementDrive.job_title}</Td><Td>{a.placementDrive.package_lpa} LPA</Td><Td><Badge>{a.status}</Badge></Td>
               <Td>
-                <ActionForm action={updatePlacementStatus} hidden={{ id: a.id }} className="flex gap-1" reset={false} inline>
+                <ActionForm action={updatePlacementStatus} hidden={{ id: a.id }} className="flex flex-wrap items-center gap-1" reset={false} inline>
                   <select name="status" defaultValue={a.status} className={inputCls + ' w-auto py-1 text-xs'}>{['Applied', 'Shortlisted', 'Interviewed', 'Selected', 'Rejected'].map((s) => <option key={s}>{s}</option>)}</select>
                   <SubmitButton tone="slate">Save</SubmitButton>
                 </ActionForm>

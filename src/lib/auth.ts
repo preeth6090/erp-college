@@ -17,9 +17,12 @@ const secret = () => {
 
 export type Role = 'super_admin' | 'faculty' | 'student' | 'parent' | 'accountant' | 'librarian';
 
-export async function createSession(userId: number, remember: boolean) {
+type RoleClaim = { id: number; slug: string; name: string };
+
+export async function createSession(userId: number, remember: boolean, role?: RoleClaim | null) {
   const maxAge = remember ? 60 * 60 * 24 * 30 : 60 * 60 * 12;
-  const token = await new SignJWT({ uid: userId })
+  // The role is embedded in the signed token so normal requests need only ONE database lookup.
+  const token = await new SignJWT({ uid: userId, role: role ?? null })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime(`${maxAge}s`)
     .sign(secret());
@@ -42,10 +45,19 @@ export const getUser = cache(async () => {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secret());
-    const user = await db.user.findUnique({ where: { id: Number(payload.uid) }, include: { role: true } });
-    if (!user || user.status !== 'Active') return null;
-    const { password: _pw, ...safe } = user;
-    return safe;
+    const claim = (payload.role ?? null) as RoleClaim | null;
+    const row = await db.user.findUnique({
+      where: { id: Number(payload.uid) },
+      select: { id: true, name: true, email: true, phone: true, status: true, role_id: true, campus_id: true, college_id: true },
+    });
+    if (!row || row.status !== 'Active') return null;
+    // Trust the signed role claim while it still matches the user's current role; otherwise reload it.
+    let role: RoleClaim | null = claim && claim.id === row.role_id ? claim : null;
+    if (!role && row.role_id) {
+      const r = await db.role.findUnique({ where: { id: row.role_id }, select: { id: true, slug: true, name: true } });
+      role = r;
+    }
+    return { ...row, role };
   } catch {
     return null;
   }

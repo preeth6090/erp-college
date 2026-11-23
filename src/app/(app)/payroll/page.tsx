@@ -20,11 +20,11 @@ export default async function Payroll({ searchParams }: { searchParams: Promise<
     <div className="space-y-4">
       <PageHeader title="Payroll Management (PF / ESI / PT / TDS)" />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <form method="GET" className="flex gap-2">
+        <form method="GET" className="flex flex-wrap gap-2">
           <select name="month" defaultValue={month} className={inputCls + ' w-auto'}>
             {Array.from({ length: 12 }, (_, i) => <option key={i} value={i + 1}>{monthName(i + 1)}</option>)}
           </select>
-          <input name="year" type="number" defaultValue={year} className={inputCls + ' w-24'} />
+          <input name="year" type="number" defaultValue={year} className={inputCls + ' w-28'} />
           <button className="rounded-lg bg-slate-800 px-4 text-xs font-semibold text-white">View Month</button>
         </form>
         <ActionForm action={processPayroll} hidden={{ month, year }} reset={false}>

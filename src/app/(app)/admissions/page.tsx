@@ -34,7 +34,7 @@ export default async function Admissions({ searchParams }: { searchParams: Promi
           </select>
           <button className="rounded-lg bg-slate-800 px-4 text-xs font-semibold text-white">Filter</button>
         </form>
-        <ActionForm action={generateMeritList} className="flex gap-2" reset={false}>
+        <ActionForm action={generateMeritList} className="flex flex-wrap gap-2" reset={false}>
           <input type="hidden" name="course_id" value={course_id ?? ''} />
           <SubmitButton tone="emerald">Generate Merit &amp; Waiting List</SubmitButton>
         </ActionForm>
@@ -51,7 +51,7 @@ export default async function Admissions({ searchParams }: { searchParams: Promi
               <Td><Badge>{a.status}</Badge>{a.registration_number && <div className="mt-1 text-[11px] text-slate-500">{a.registration_number}</div>}</Td>
               <Td>
                 <div className="flex items-center gap-2">
-                  <ActionForm action={updateApplicationStatus} hidden={{ id: a.id }} className="flex gap-1" reset={false} inline>
+                  <ActionForm action={updateApplicationStatus} hidden={{ id: a.id }} className="flex flex-wrap items-center gap-1" reset={false} inline>
                     <select name="status" defaultValue={a.status} className={inputCls + ' w-auto py-1 text-xs'}>
                       {['Verified', 'Merit Listed', 'Waiting List', 'Approved', 'Confirmed', 'Rejected', 'Cancelled'].map((s) => <option key={s}>{s}</option>)}
                     </select>

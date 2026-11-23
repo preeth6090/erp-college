@@ -5,3 +5,20 @@
   body { background: #fff !important; }
   .print-full { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
 }
+
+/* ── Mobile ── */
+html { -webkit-text-size-adjust: 100%; }
+body { overflow-x: hidden; }
+img, svg, canvas { max-width: 100%; }
+
+/* 16px inputs stop iOS Safari zooming the page on focus */
+@media (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']), select, textarea { font-size: 16px !important; }
+}
+/* comfortable tap targets on touch devices */
+@media (pointer: coarse) {
+  button, [type='submit'], select, input:not([type='checkbox']):not([type='radio']) { min-height: 40px; }
+  summary { padding-block: 6px; }
+}
+/* long words / emails / tokens never push the page wider */
+main { overflow-wrap: anywhere; }

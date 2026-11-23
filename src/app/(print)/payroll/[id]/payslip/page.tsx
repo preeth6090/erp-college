@@ -18,8 +18,8 @@ export default async function Payslip({ params }: { params: Promise<{ id: string
     <div className="flex justify-between border-b border-slate-100 py-1.5 text-sm"><span>{l}</span><span className={b ? 'font-bold' : ''}>{inr(v)}</span></div>
   );
   return (
-    <div className="print-full rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-      <div className="mb-5 flex items-start justify-between border-b pb-4">
+    <div className="print-full rounded-xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b pb-4">
         <div><h2 className="text-lg font-bold">{e.college.name}</h2><p className="text-xs text-slate-500">Salary Payslip for {monthName(p.month)} {p.year}</p></div>
         <PrintButton label="Print Payslip" />
       </div>

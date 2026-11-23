@@ -9,7 +9,7 @@ export default async function LoginPage() {
   const user = await getUser();
   if (user) redirect(homeForRole(user.role?.slug));
   return (
-    <div className="flex min-h-screen flex-col bg-slate-100">
+    <div className="flex min-h-dvh flex-col bg-slate-100">
       <header className="bg-slate-900 px-6 py-4 text-white">
         <span className="text-xl font-bold tracking-tight">
           College <span className="text-sm font-semibold text-indigo-400">ERP</span>

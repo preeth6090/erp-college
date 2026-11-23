@@ -20,7 +20,7 @@ export default async function AdmitCard({ params }: { params: Promise<{ id: stri
     ?? (await db.examRegistration.create({ data: { exam_id: exam.id, student_id: s.id, seat_no: `SEAT-${100 + Math.floor(Math.random() * 900)}`, admit_card_number: `ADM-${exam.id}-${s.id}` } }));
   return (
     <div className="print-full rounded-xl border-2 border-slate-800 bg-white p-8">
-      <div className="mb-4 flex items-start justify-between border-b pb-3">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b pb-3">
         <div>
           <h2 className="text-lg font-bold">{s.college.name}</h2>
           <p className="text-sm font-semibold">{exam.name} — HALL TICKET</p>

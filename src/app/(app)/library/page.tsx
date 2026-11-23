@@ -47,7 +47,7 @@ export default async function Library({ searchParams }: { searchParams: Promise<
         </Card>
       </div>
       <Card title="Book Catalogue & Digital Library" actions={
-        <form method="GET" className="flex gap-2"><input name="search" defaultValue={search} placeholder="Search title/ISBN..." className={inputCls + ' py-1 text-xs'} /><button className="rounded-lg bg-slate-800 px-3 text-xs text-white">Go</button></form>
+        <form method="GET" className="flex flex-wrap gap-2"><input name="search" defaultValue={search} placeholder="Search title/ISBN..." className={inputCls + ' py-1 text-xs'} /><button className="rounded-lg bg-slate-800 px-3 text-xs text-white">Go</button></form>
       }>
         <Table head={['Acc No / Barcode', 'Title & Author', 'Type', 'Stock']}>
           {books.map((b) => (
@@ -70,7 +70,7 @@ export default async function Library({ searchParams }: { searchParams: Promise<
                 <Td><Badge>{status}</Badge>{i.fine_amount > 0 && <div className="mt-1 text-xs text-rose-600">Fine: {inr(i.fine_amount)}</div>}</Td>
                 <Td>
                   {i.status !== 'Returned' ? (
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap items-center gap-1">
                       <ActionForm action={returnBook} hidden={{ id: i.id }} inline reset={false}><SubmitButton tone="emerald">Return</SubmitButton></ActionForm>
                       <ActionForm action={renewBook} hidden={{ id: i.id }} inline reset={false}><SubmitButton tone="slate">Renew</SubmitButton></ActionForm>
                     </div>

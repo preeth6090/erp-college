@@ -33,7 +33,7 @@ export default async function Scholarships() {
               <Td>{a.student.full_name} ({a.student.category})</Td><Td>{a.scholarship.name}<div className="text-xs text-slate-500">{a.scholarship.scheme_type}</div></Td>
               <Td>{inr0(a.scholarship.amount)}</Td><Td><Badge>{a.status}</Badge></Td>
               <Td>
-                <ActionForm action={updateScholarshipStatus} hidden={{ id: a.id }} className="flex gap-1" reset={false} inline>
+                <ActionForm action={updateScholarshipStatus} hidden={{ id: a.id }} className="flex flex-wrap items-center gap-1" reset={false} inline>
                   <select name="status" defaultValue={a.status} className={inputCls + ' w-auto py-1 text-xs'}>{['Applied', 'Verified', 'Approved', 'Disbursed', 'Rejected'].map((s) => <option key={s}>{s}</option>)}</select>
                   <SubmitButton tone="slate">Update</SubmitButton>
                 </ActionForm>

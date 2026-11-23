@@ -45,8 +45,8 @@ export default async function Fees() {
               <Td>{inr0(a.paid_amount)}<div className="text-xs text-rose-600">Bal: {inr0(a.balance_amount)}</div></Td>
               <Td>
                 {a.balance_amount > 0 ? (
-                  <ActionForm action={collectFee} hidden={{ id: a.id }} className="flex gap-1" inline>
-                    <input type="number" name="amount" defaultValue={a.balance_amount} max={a.balance_amount} step="0.01" className={inputCls + ' w-28 py-1 text-xs'} />
+                  <ActionForm action={collectFee} hidden={{ id: a.id }} className="flex flex-wrap items-center gap-1" inline>
+                    <input type="number" name="amount" defaultValue={a.balance_amount} max={a.balance_amount} step="0.01" className={inputCls + ' w-28 min-w-0 py-1 text-xs'} />
                     <select name="payment_mode" className={inputCls + ' w-auto py-1 text-xs'}>{['UPI', 'Card', 'NetBanking', 'Cash', 'DD'].map((m) => <option key={m}>{m}</option>)}</select>
                     <SubmitButton tone="emerald">Pay</SubmitButton>
                   </ActionForm>

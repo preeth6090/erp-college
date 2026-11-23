@@ -22,7 +22,7 @@ export default async function PrintCertificate({ params }: { params: Promise<{ i
   const qr = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 160 });
   const s = c.student;
   return (
-    <div className="print-full rounded-xl border-4 border-double border-slate-700 bg-white p-10">
+    <div className="print-full rounded-xl border-4 border-double border-slate-700 bg-white p-5 sm:p-10">
       <div className="mb-6 flex items-start justify-between">
         <div className="text-center flex-1">
           <h2 className="text-2xl font-bold">{s.college.name}</h2>
@@ -38,7 +38,7 @@ export default async function PrintCertificate({ params }: { params: Promise<{ i
         <strong>{s.department.name}</strong>.
         {c.remarks && <><br /><br /><em>Remarks / Purpose: {c.remarks}</em></>}
       </p>
-      <div className="mt-8 flex items-end justify-between">
+      <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
         <div className="text-xs">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qr} alt="Verification QR code" width={110} height={110} />

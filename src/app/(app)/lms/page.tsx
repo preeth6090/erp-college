@@ -75,7 +75,7 @@ export default async function LMS() {
               {a.lmsSubmissions.map((s) => (
                 <div key={s.id} className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 py-2 text-sm">
                   <div><span className="font-medium">{s.student.full_name}</span><div className="text-xs text-slate-500">{s.submission_url}</div></div>
-                  <ActionForm action={gradeSubmission} hidden={{ id: s.id }} className="flex gap-1" reset={false} inline>
+                  <ActionForm action={gradeSubmission} hidden={{ id: s.id }} className="flex flex-wrap items-center gap-1" reset={false} inline>
                     <input type="number" step="0.5" name="marks_obtained" defaultValue={s.marks_obtained ?? ''} placeholder="Marks" required className={inputCls + ' w-24 py-1 text-xs'} />
                     <SubmitButton tone="slate">Grade</SubmitButton>
                   </ActionForm>

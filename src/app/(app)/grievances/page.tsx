@@ -44,7 +44,7 @@ export default async function Grievances() {
               <Td><div className="font-medium">{g.subject}</div><div className="text-xs text-slate-500">{g.is_confidential ? 'Confidential' : (g.student?.full_name ?? 'Anonymous')}</div></Td>
               <Td><Badge>{g.status}</Badge></Td>
               <Td>
-                <ActionForm action={resolveGrievance} hidden={{ id: g.id }} className="flex gap-1" reset={false} inline>
+                <ActionForm action={resolveGrievance} hidden={{ id: g.id }} className="flex flex-wrap items-center gap-1" reset={false} inline>
                   <input name="resolution_notes" defaultValue={g.resolution_notes ?? ''} placeholder="Resolution note..." className={inputCls + ' py-1 text-xs'} />
                   <select name="status" defaultValue={g.status} className={inputCls + ' w-auto py-1 text-xs'}>{['Under Review', 'Resolved', 'Closed'].map((s) => <option key={s}>{s}</option>)}</select>
                   <SubmitButton tone="slate">Update</SubmitButton>

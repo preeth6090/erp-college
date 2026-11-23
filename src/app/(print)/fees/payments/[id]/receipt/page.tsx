@@ -15,8 +15,8 @@ export default async function FeeReceipt({ params }: { params: Promise<{ id: str
   if (user.role?.slug === 'student' && p.student.user_id !== user.id) notFound();
   if (user.role?.slug === 'parent' && !p.student.studentGuardians.some((g) => g.parent_user_id === user.id)) notFound();
   return (
-    <div className="print-full rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-      <div className="mb-5 flex items-start justify-between border-b pb-4">
+    <div className="print-full rounded-xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b pb-4">
         <div><h2 className="text-lg font-bold">{p.student.college.name}</h2><p className="text-xs text-slate-500">Official Student Fee Receipt</p></div>
         <PrintButton label="Print Receipt" />
       </div>

@@ -89,7 +89,7 @@ export default async function Attendance({ searchParams }: { searchParams: Promi
               <tr key={c.id}>
                 <Td>{c.user?.name ?? '—'}</Td><Td>{fmtDate(c.attendance_date)}</Td><Td>{c.reason}</Td><Td><Badge>{c.status}</Badge></Td>
                 <Td>
-                  <ActionForm action={updateCorrection} hidden={{ id: c.id }} className="flex gap-1" reset={false} inline>
+                  <ActionForm action={updateCorrection} hidden={{ id: c.id }} className="flex flex-wrap items-center gap-1" reset={false} inline>
                     <select name="status" className={inputCls + ' w-auto py-1 text-xs'}><option>Approved</option><option>Rejected</option></select>
                     <SubmitButton tone="slate">Set</SubmitButton>
                   </ActionForm>

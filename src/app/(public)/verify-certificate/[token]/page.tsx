@@ -8,7 +8,7 @@ export default async function Verify({ params }: { params: Promise<{ token: stri
   const { token } = await params;
   const c = await db.certificate.findUnique({ where: { verification_token: token }, include: { student: { include: { course: true } } } });
   return (
-    <div className="mx-auto max-w-lg rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+    <div className="mx-auto max-w-lg rounded-xl border border-slate-200 bg-white p-5 text-center sm:p-8 shadow-sm">
       {c ? (
         <>
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-3xl text-emerald-600">✓</div>

@@ -44,7 +44,7 @@ export default async function Students({ searchParams }: { searchParams: Promise
         </ActionForm>
       </Card>
       <form method="GET" className="flex flex-wrap gap-2">
-        <input name="search" defaultValue={search} placeholder="Search Name / ID / Adm No..." className={inputCls + ' w-64'} />
+        <input name="search" defaultValue={search} placeholder="Search Name / ID / Adm No..." className={inputCls + ' w-full sm:w-64'} />
         <select name="course_id" defaultValue={course_id ?? ''} className={inputCls + ' w-auto'}>
           <option value="">All Courses</option>
           {courses.map((c) => <option key={c.id} value={c.id}>{c.code}</option>)}
@@ -65,7 +65,7 @@ export default async function Students({ searchParams }: { searchParams: Promise
               <Td>{s.category}</Td>
               <Td><Badge>{s.status}</Badge></Td>
               <Td>
-                <div className="flex gap-1">
+                <div className="flex flex-wrap items-center gap-1">
                   <LinkButton href={`/students/${s.id}`}>Profile</LinkButton>
                   <LinkButton href={`/students/${s.id}/id-card`} target="_blank">ID Card</LinkButton>
                   <LinkButton href={`/students/${s.id}/marksheet`} target="_blank">Transcript</LinkButton>

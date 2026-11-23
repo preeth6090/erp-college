@@ -51,7 +51,7 @@ export default async function Enquiries() {
               <Td>{e.course?.code ?? '-'}</Td>
               <Td><Badge>{e.status}</Badge></Td>
               <Td>
-                <ActionForm action={addFollowup} hidden={{ id: e.id }} className="flex gap-1" inline>
+                <ActionForm action={addFollowup} hidden={{ id: e.id }} className="flex flex-wrap items-center gap-1" inline>
                   <input name="notes" required placeholder="Counselling note..." className={inputCls + ' py-1 text-xs'} />
                   <select name="status" defaultValue={e.status} className={inputCls + ' w-auto py-1 text-xs'}>
                     {['New', 'Follow-up', 'Converted', 'Lost'].map((s) => <option key={s}>{s}</option>)}

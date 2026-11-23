@@ -20,7 +20,7 @@ export async function login(_prev: LoginState, fd: FormData): Promise<LoginState
   const ok = user && user.status === 'Active' && (await bcrypt.compare(parsed.data.password, user.password));
   if (!user || !ok) return { error: 'Invalid email, password, or inactive account.', email: parsed.data.email };
 
-  await createSession(user.id, fd.get('remember') === '1');
+  await createSession(user.id, fd.get('remember') === '1', user.role ? { id: user.role.id, slug: user.role.slug, name: user.role.name } : null);
   const ip = (await headers()).get('x-forwarded-for') ?? '127.0.0.1';
   await db.auditLog.create({ data: { user_id: user.id, action: 'LOGIN', module: 'Auth', description: `User signed in: ${user.email}`, ip_address: ip } });
   redirect(homeForRole(user.role?.slug));
