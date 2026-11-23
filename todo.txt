@@ -1,4 +1,4 @@
-Using latest laravel and xampp db college crteate the below project Complete Indian College Management Software – Modules
+Complete Indian College Management Software (Next.js + React + Prisma) – Modules
 1. Dashboard & Analytics
 - Total students, faculty and staff.
 - New admission enquiries.

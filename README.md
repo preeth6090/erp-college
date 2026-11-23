@@ -1,8 +1,50 @@
 # WebotApp Indian College ERP — Complete Higher-Education Management System
 
-A comprehensive, production-ready Indian College & Higher-Education Management System built on **Laravel 13** and **MySQL (XAMPP)**, compliant with **NEP 2020**, **CBCS**, **AISHE**, and **NAAC / NIRF** requirements.
+A comprehensive Indian College & Higher-Education Management System built with **Next.js (React)**, **TypeScript**, **Tailwind CSS** and **Prisma** on **SQLite**. Compliant with **NEP 2020**, **CBCS**, **AISHE**, and **NAAC / NIRF** requirements.
 
----
+*Created by Timestamp India.*
+
+## Quick start
+
+```bash
+npm install
+cp .env.example .env      # set SESSION_SECRET to a long random string
+npm run setup             # generates the client, creates the SQLite DB and loads demo data
+npm run dev               # http://localhost:3000
+```
+
+Demo logins (password for all: `password`):
+
+| Role | Email |
+| --- | --- |
+| Super Admin | admin@webotapp.edu.in |
+| Faculty | faculty@webotapp.edu.in |
+| Student | student@webotapp.edu.in |
+| Parent | parent@webotapp.edu.in |
+
+Public pages (no login): `/apply` (online admission form), `/track-application`, `/verify-certificate/<token>`.
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` / `build` / `start` | Next.js development, production build, production server |
+| `npm run db:push` | Sync `prisma/schema.prisma` to the database |
+| `npm run db:seed` | Load demo data (run on an empty database) |
+| `npm run typecheck` | TypeScript check |
+
+## Database
+
+SQLite (`prisma/dev.db`) is used by default — free, zero-setup and fine for a single-server, small/mid-scale deployment (back up the file regularly). To move to PostgreSQL (e.g. Neon) later, change `provider` in `prisma/schema.prisma` to `postgresql`, point `DATABASE_URL` at the new database and run `npm run db:push`.
+
+## Project layout
+
+- `src/app/(app)` — authenticated ERP modules (sidebar layout)
+- `src/app/(print)` — printable documents: ID card, marksheet, admit card, receipts, payslip, certificate
+- `src/app/(public)` — public admission portal, application tracking, certificate verification
+- `src/actions` — server actions (validation with zod, role checks, audit logging)
+- `src/lib` — database client, session auth, role helpers, formatting
+- `prisma` — schema and seed data
 
 ## 🚀 Key Modules (All 30 Included)
 
@@ -37,63 +79,7 @@ A comprehensive, production-ready Indian College & Higher-Education Management S
 29. **Communication & Alerts**: College-wide notices, department announcements, WhatsApp, SMS, and emergency alerts.
 30. **System Administration & RBAC**: Multi-campus and multi-college configurations, role-based access control (Admin, Faculty, Student, Parent, Accountant, Librarian), audit logging, student CSV exports, and database JSON backups.
 
----
-
-## 🛠️ Tech Stack
-
-- **Backend**: Laravel 13 (PHP 8.4+)
-- **Database**: MySQL / MariaDB (XAMPP `college` database)
-- **Frontend**: Blade templates, Tailwind CSS, Chart.js
-- **Testing**: PHPUnit / Pest Feature Test Suite (112 assertions, 100% passing)
 
 ---
 
-## ⚙️ Installation & Setup
-
-1. **Clone the repository**:
-   ```bash
-   git clone git@github.com:webotapp-academy/college-management-software.git
-   cd college-management-software
-   ```
-
-2. **Install Composer dependencies**:
-   ```bash
-   composer install
-   ```
-
-3. **Configure Environment**:
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
-   Set your MySQL credentials in `.env`:
-   ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=college
-   DB_USERNAME=root
-   DB_PASSWORD=
-   DB_SOCKET=/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock
-   ```
-
-4. **Run Migrations & Seeders**:
-   ```bash
-   php artisan migrate:fresh --seed
-   ```
-
-5. **Start the Application**:
-   ```bash
-   php artisan serve
-   ```
-   Access at `http://localhost:8000`.
-
----
-
-## 🔒 Security & Roles
-
-Authentication is strictly required across the entire platform. Pre-seeded demo user accounts (password: `password`):
-- **Super Administrator**: `admin@webotapp.edu.in`
-- **Faculty Member**: `faculty@webotapp.edu.in`
-- **Student**: `student@webotapp.edu.in`
-- **Parent / Guardian**: `parent@webotapp.edu.in`
+Created by Timestamp India.

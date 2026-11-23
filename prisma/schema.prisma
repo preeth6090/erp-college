@@ -1,0 +1,1512 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Campus {
+  id         Int      @id @default(autoincrement())
+  code       String   @unique
+  name       String
+  city       String
+  state      String
+  address    String?
+  phone      String?
+  email      String?
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  colleges College[]
+  users    User[]
+
+  @@map("campuses")
+}
+
+model College {
+  id                     Int      @id @default(autoincrement())
+  campus_id              Int
+  code                   String   @unique
+  name                   String
+  university_affiliation String?
+  aishe_code             String?
+  naac_grade             String?
+  principal_name         String?
+  is_active              Boolean  @default(true)
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
+
+  campus      Campus       @relation(fields: [campus_id], references: [id], onDelete: Cascade)
+  users       User[]
+  departments Department[]
+  students    Student[]
+  employees   Employee[]
+
+  @@map("colleges")
+}
+
+model AcademicYear {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  start_date DateTime
+  end_date   DateTime
+  is_current Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  academicSessions AcademicSession[]
+
+  @@map("academic_years")
+}
+
+model FinancialYear {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  start_date DateTime
+  end_date   DateTime
+  is_current Boolean  @default(false)
+  is_closed  Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("financial_years")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  rolePermissions RolePermission[]
+  users           User[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id         Int      @id @default(autoincrement())
+  slug       String   @unique
+  name       String
+  module     String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  role_id       Int
+  permission_id Int
+
+  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, permission_id])
+  @@map("role_permission")
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  name              String
+  email             String    @unique
+  email_verified_at DateTime?
+  password          String
+  role_id           Int?
+  campus_id         Int?
+  college_id        Int?
+  phone             String?
+  status            String    @default("Active")
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  role                  Role?                  @relation(fields: [role_id], references: [id], onDelete: SetNull)
+  campus                Campus?                @relation(fields: [campus_id], references: [id], onDelete: SetNull)
+  college               College?               @relation(fields: [college_id], references: [id], onDelete: SetNull)
+  auditLogs             AuditLog[]
+  admissionEnquiries    AdmissionEnquiry[]
+  enquiryFollowups      EnquiryFollowup[]
+  students              Student[]
+  studentGuardians      StudentGuardian[]
+  employees             Employee[]
+  employeeLeaves        EmployeeLeave[]
+  studentAttendances    StudentAttendance[]
+  attendanceCorrections AttendanceCorrection[]
+  libraryIssues         LibraryIssue[]
+  financialVouchers     FinancialVoucher[]
+  purchaseRequisitions  PurchaseRequisition[]
+  lmsDiscussions        LmsDiscussion[]
+  grievances            Grievance[]
+  announcements         Announcement[]
+
+  @@map("users")
+}
+
+model SystemSetting {
+  id         Int      @id @default(autoincrement())
+  group_name String   @default("general")
+  key        String   @unique
+  value      String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  user_id     Int?
+  action      String
+  module      String
+  record_type String?
+  record_id   Int?
+  description String?
+  ip_address  String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+model Department {
+  id         Int      @id @default(autoincrement())
+  college_id Int
+  code       String   @unique
+  name       String
+  hod_name   String?
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  college              College               @relation(fields: [college_id], references: [id], onDelete: Cascade)
+  courses              Course[]
+  students             Student[]
+  employees            Employee[]
+  financialVouchers    FinancialVoucher[]
+  departmentBudgets    DepartmentBudget[]
+  fixedAssets          FixedAsset[]
+  purchaseRequisitions PurchaseRequisition[]
+  inventoryItems       InventoryItem[]
+  campusEvents         CampusEvent[]
+  accreditationRecords AccreditationRecord[]
+  researchRecords      ResearchRecord[]
+  announcements        Announcement[]
+
+  @@map("departments")
+}
+
+model Course {
+  id                Int      @id @default(autoincrement())
+  department_id     Int
+  code              String   @unique
+  name              String
+  level             String   @default("Undergraduate")
+  duration_years    Int      @default(3)
+  total_semesters   Int      @default(6)
+  total_credits     Int      @default(120)
+  intake_capacity   Int      @default(60)
+  cutoff_percentage Float    @default(50.00)
+  nep_2020_enabled  Boolean  @default(true)
+  cbcs_enabled      Boolean  @default(true)
+  is_active         Boolean  @default(true)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  department            Department             @relation(fields: [department_id], references: [id], onDelete: Cascade)
+  subjects              Subject[]
+  admissionEnquiries    AdmissionEnquiry[]
+  admissionApplications AdmissionApplication[]
+  students              Student[]
+  classSections         ClassSection[]
+  exams                 Exam[]
+  feeStructures         FeeStructure[]
+  alumnuses             Alumnus[]
+
+  @@map("courses")
+}
+
+model AcademicSession {
+  id               Int      @id @default(autoincrement())
+  academic_year_id Int
+  name             String
+  term             String   @default("Odd")
+  start_date       DateTime
+  end_date         DateTime
+  is_active        Boolean  @default(true)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  academicYear          AcademicYear           @relation(fields: [academic_year_id], references: [id], onDelete: Cascade)
+  academicCalendars     AcademicCalendar[]
+  admissionApplications AdmissionApplication[]
+  subjectAllocations    SubjectAllocation[]
+  exams                 Exam[]
+  studentFeeAccounts    StudentFeeAccount[]
+  scholarships          Scholarship[]
+
+  @@map("academic_sessions")
+}
+
+model Subject {
+  id                 Int      @id @default(autoincrement())
+  course_id          Int
+  code               String   @unique
+  name               String
+  semester           Int      @default(1)
+  credits            Float    @default(4.0)
+  subject_type       String   @default("Core")
+  max_internal_marks Int      @default(30)
+  max_external_marks Int      @default(70)
+  syllabus_summary   String?
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  course             Course              @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  subjectAllocations SubjectAllocation[]
+  timetableSlots     TimetableSlot[]
+  studentAttendances StudentAttendance[]
+  examSchedules      ExamSchedule[]
+  examMarks          ExamMark[]
+  lmsMaterials       LmsMaterial[]
+  lmsAssignments     LmsAssignment[]
+  lmsDiscussions     LmsDiscussion[]
+
+  @@map("subjects")
+}
+
+model AcademicCalendar {
+  id                  Int       @id @default(autoincrement())
+  academic_session_id Int
+  title               String
+  event_type          String    @default("Academic")
+  start_date          DateTime
+  end_date            DateTime?
+  description         String?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  academicSession AcademicSession @relation(fields: [academic_session_id], references: [id], onDelete: Cascade)
+
+  @@map("academic_calendars")
+}
+
+model AdmissionEnquiry {
+  id                 Int       @id @default(autoincrement())
+  enquiry_no         String    @unique
+  student_name       String
+  phone              String
+  email              String?
+  source             String    @default("Walk-in")
+  campaign_name      String?
+  course_id          Int?
+  counsellor_id      Int?
+  status             String    @default("New")
+  lost_reason        String?
+  next_followup_date DateTime?
+  notes              String?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  course           Course?           @relation(fields: [course_id], references: [id], onDelete: SetNull)
+  counsellor       User?             @relation(fields: [counsellor_id], references: [id], onDelete: SetNull)
+  enquiryFollowups EnquiryFollowup[]
+
+  @@map("admission_enquiries")
+}
+
+model EnquiryFollowup {
+  id                   Int      @id @default(autoincrement())
+  admission_enquiry_id Int
+  user_id              Int?
+  followup_at          DateTime
+  notes                String
+  outcome              String?
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  admissionEnquiry AdmissionEnquiry @relation(fields: [admission_enquiry_id], references: [id], onDelete: Cascade)
+  user             User?            @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@map("enquiry_followups")
+}
+
+model AdmissionApplication {
+  id                     Int       @id @default(autoincrement())
+  application_no         String    @unique
+  academic_session_id    Int?
+  course_id              Int
+  full_name              String
+  email                  String
+  phone                  String
+  dob                    DateTime?
+  gender                 String    @default("Male")
+  category               String    @default("General")
+  aadhaar_number         String?
+  aadhaar_consent        Boolean   @default(false)
+  father_name            String?
+  mother_name            String?
+  address                String?
+  class_10_board         String?
+  class_10_percentage    Float?
+  class_12_board         String?
+  class_12_percentage    Float?
+  previous_qualification String?
+  entrance_exam_name     String?
+  entrance_score         Float?
+  merit_score            Float?
+  merit_rank             Int?
+  photo_path             String?
+  signature_path         String?
+  documents_json         String?
+  application_fee_amount Float     @default(500.00)
+  application_fee_status String    @default("Pending")
+  payment_txn_id         String?
+  status                 String    @default("Submitted")
+  registration_number    String?
+  refund_amount          Float     @default(0)
+  remarks                String?
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
+
+  academicSession AcademicSession? @relation(fields: [academic_session_id], references: [id], onDelete: SetNull)
+  course          Course           @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@map("admission_applications")
+}
+
+model Student {
+  id                        Int       @id @default(autoincrement())
+  user_id                   Int?
+  college_id                Int
+  department_id             Int
+  course_id                 Int
+  current_semester          Int       @default(1)
+  class_section_id          Int?
+  unique_student_id         String    @unique
+  admission_number          String    @unique
+  registration_number       String?
+  roll_number               String?
+  full_name                 String
+  email                     String    @unique
+  phone                     String
+  dob                       DateTime?
+  gender                    String    @default("Male")
+  blood_group               String?
+  category                  String    @default("General")
+  religion                  String?
+  aadhaar_last4             String?
+  photo_path                String?
+  permanent_address         String?
+  correspondence_address    String?
+  emergency_contact_name    String?
+  emergency_contact_phone   String?
+  previous_academic_history String?
+  admission_date            DateTime
+  status                    String    @default("Active")
+  transfer_migration_notes  String?
+  created_at                DateTime  @default(now())
+  updated_at                DateTime  @updatedAt
+
+  user                    User?                    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  college                 College                  @relation(fields: [college_id], references: [id], onDelete: Cascade)
+  department              Department               @relation(fields: [department_id], references: [id], onDelete: Cascade)
+  course                  Course                   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  studentGuardians        StudentGuardian[]
+  studentDocuments        StudentDocument[]
+  studentAttendances      StudentAttendance[]
+  examRegistrations       ExamRegistration[]
+  examMarks               ExamMark[]
+  studentFeeAccounts      StudentFeeAccount[]
+  feePayments             FeePayment[]
+  hostelAllocations       HostelAllocation[]
+  hostelActivities        HostelActivity[]
+  transportAllocations    TransportAllocation[]
+  lmsSubmissions          LmsSubmission[]
+  placementApplications   PlacementApplication[]
+  scholarshipApplications ScholarshipApplication[]
+  certificates            Certificate[]
+  grievances              Grievance[]
+  disciplinaryRecords     DisciplinaryRecord[]
+  eventRegistrations      EventRegistration[]
+  alumnuses               Alumnus[]
+
+  @@map("students")
+}
+
+model StudentGuardian {
+  id             Int      @id @default(autoincrement())
+  student_id     Int
+  parent_user_id Int?
+  relation       String   @default("Father")
+  name           String
+  phone          String
+  email          String?
+  occupation     String?
+  annual_income  Float?
+  is_primary     Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  student    Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  parentUser User?   @relation(fields: [parent_user_id], references: [id], onDelete: SetNull)
+
+  @@map("student_guardians")
+}
+
+model StudentDocument {
+  id            Int      @id @default(autoincrement())
+  student_id    Int
+  document_type String
+  file_path     String
+  is_verified   Boolean  @default(false)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  student Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("student_documents")
+}
+
+model Employee {
+  id                    Int       @id @default(autoincrement())
+  user_id               Int?
+  college_id            Int
+  department_id         Int?
+  staff_id              String    @unique
+  full_name             String
+  email                 String    @unique
+  phone                 String
+  employee_type         String    @default("Faculty")
+  designation           String
+  qualification         String?
+  experience_years      Int       @default(0)
+  specialization        String?
+  joining_date          DateTime
+  resignation_date      DateTime?
+  status                String    @default("Active")
+  basic_salary          Float     @default(35000.00)
+  bank_account_no       String?
+  ifsc_code             String?
+  pan_number            String?
+  uan_number            String?
+  esi_number            String?
+  weekly_workload_hours Int       @default(18)
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  user                             User?                @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  college                          College              @relation(fields: [college_id], references: [id], onDelete: Cascade)
+  department                       Department?          @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  employeeLeaves                   EmployeeLeave[]
+  employeeEvaluations              EmployeeEvaluation[]
+  salaryStructures                 SalaryStructure[]
+  payrolls                         Payroll[]
+  classSections                    ClassSection[]
+  subjectAllocations               SubjectAllocation[]
+  timetableSlots_faculty           TimetableSlot[]      @relation("TimetableSlot_faculty_id")
+  timetableSlots_substituteFaculty TimetableSlot[]      @relation("TimetableSlot_substitute_faculty_id")
+  employeeAttendances              EmployeeAttendance[]
+  examSchedules                    ExamSchedule[]
+  hostels                          Hostel[]
+  lmsMaterials                     LmsMaterial[]
+  lmsAssignments                   LmsAssignment[]
+
+  @@map("employees")
+}
+
+model EmployeeLeave {
+  id          Int      @id @default(autoincrement())
+  employee_id Int
+  leave_type  String   @default("Casual")
+  from_date   DateTime
+  to_date     DateTime
+  days        Int      @default(1)
+  reason      String
+  status      String   @default("Pending")
+  approved_by Int?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  employee   Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  approvedBy User?    @relation(fields: [approved_by], references: [id], onDelete: SetNull)
+
+  @@map("employee_leaves")
+}
+
+model EmployeeEvaluation {
+  id          Int      @id @default(autoincrement())
+  employee_id Int
+  period      String
+  rating      Float    @default(4.0)
+  promoted_to String?
+  remarks     String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@map("employee_evaluations")
+}
+
+model SalaryStructure {
+  id                Int      @id @default(autoincrement())
+  employee_id       Int
+  basic_salary      Float
+  hra               Float    @default(0)
+  da                Float    @default(0)
+  ta                Float    @default(0)
+  special_allowance Float    @default(0)
+  pf_enabled        Boolean  @default(true)
+  esi_enabled       Boolean  @default(false)
+  pt_enabled        Boolean  @default(true)
+  tds_monthly       Float    @default(0)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@map("salary_structures")
+}
+
+model Payroll {
+  id                   Int       @id @default(autoincrement())
+  employee_id          Int
+  month                Int
+  year                 Int
+  working_days         Int       @default(26)
+  leave_deduction_days Int       @default(0)
+  gross_salary         Float
+  pf_amount            Float     @default(0)
+  esi_amount           Float     @default(0)
+  professional_tax     Float     @default(0)
+  tds_amount           Float     @default(0)
+  loan_deduction       Float     @default(0)
+  advance_deduction    Float     @default(0)
+  arrears              Float     @default(0)
+  net_salary           Float
+  status               String    @default("Processed")
+  paid_at              DateTime?
+  bank_ref             String?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@unique([employee_id, month, year])
+  @@map("payrolls")
+}
+
+model ClassSection {
+  id               Int      @id @default(autoincrement())
+  course_id        Int
+  semester         Int      @default(1)
+  section_name     String   @default("A")
+  room_no          String?
+  class_teacher_id Int?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  course             Course              @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  classTeacher       Employee?           @relation(fields: [class_teacher_id], references: [id], onDelete: SetNull)
+  subjectAllocations SubjectAllocation[]
+  timetableSlots     TimetableSlot[]
+  studentAttendances StudentAttendance[]
+
+  @@map("class_sections")
+}
+
+model SubjectAllocation {
+  id                  Int      @id @default(autoincrement())
+  academic_session_id Int
+  class_section_id    Int
+  subject_id          Int
+  faculty_id          Int
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  academicSession AcademicSession @relation(fields: [academic_session_id], references: [id], onDelete: Cascade)
+  classSection    ClassSection    @relation(fields: [class_section_id], references: [id], onDelete: Cascade)
+  subject         Subject         @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  faculty         Employee        @relation(fields: [faculty_id], references: [id], onDelete: Cascade)
+
+  @@map("subject_allocations")
+}
+
+model TimetableSlot {
+  id                    Int      @id @default(autoincrement())
+  class_section_id      Int
+  subject_id            Int
+  faculty_id            Int
+  substitute_faculty_id Int?
+  day_of_week           String
+  start_time            String
+  end_time              String
+  room_no               String
+  slot_type             String   @default("Lecture")
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+
+  classSection      ClassSection @relation(fields: [class_section_id], references: [id], onDelete: Cascade)
+  subject           Subject      @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  faculty           Employee     @relation("TimetableSlot_faculty_id", fields: [faculty_id], references: [id], onDelete: Cascade)
+  substituteFaculty Employee?    @relation("TimetableSlot_substitute_faculty_id", fields: [substitute_faculty_id], references: [id], onDelete: SetNull)
+
+  @@map("timetable_slots")
+}
+
+model StudentAttendance {
+  id               Int      @id @default(autoincrement())
+  student_id       Int
+  subject_id       Int?
+  class_section_id Int?
+  attendance_date  DateTime
+  status           String   @default("Present")
+  method           String   @default("Manual")
+  marked_by        Int?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  student      Student       @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  subject      Subject?      @relation(fields: [subject_id], references: [id], onDelete: SetNull)
+  classSection ClassSection? @relation(fields: [class_section_id], references: [id], onDelete: SetNull)
+  markedBy     User?         @relation(fields: [marked_by], references: [id], onDelete: SetNull)
+
+  @@map("student_attendances")
+}
+
+model EmployeeAttendance {
+  id              Int      @id @default(autoincrement())
+  employee_id     Int
+  attendance_date DateTime
+  check_in        String?
+  check_out       String?
+  status          String   @default("Present")
+  method          String   @default("Biometric")
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@map("employee_attendances")
+}
+
+model AttendanceCorrection {
+  id              Int      @id @default(autoincrement())
+  user_id         Int
+  attendance_date DateTime
+  reason          String
+  status          String   @default("Pending")
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("attendance_corrections")
+}
+
+model Exam {
+  id                  Int      @id @default(autoincrement())
+  name                String
+  exam_type           String   @default("End-Semester")
+  academic_session_id Int
+  course_id           Int
+  semester            Int      @default(1)
+  start_date          DateTime
+  end_date            DateTime
+  is_published        Boolean  @default(false)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  academicSession   AcademicSession    @relation(fields: [academic_session_id], references: [id], onDelete: Cascade)
+  course            Course             @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  examSchedules     ExamSchedule[]
+  examRegistrations ExamRegistration[]
+  examMarks         ExamMark[]
+
+  @@map("exams")
+}
+
+model ExamSchedule {
+  id                  Int      @id @default(autoincrement())
+  exam_id             Int
+  subject_id          Int
+  exam_date           DateTime
+  start_time          String
+  end_time            String
+  room_no             String
+  invigilator_id      Int?
+  max_marks           Int      @default(100)
+  passing_marks       Int      @default(40)
+  question_paper_code String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  exam        Exam      @relation(fields: [exam_id], references: [id], onDelete: Cascade)
+  subject     Subject   @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  invigilator Employee? @relation(fields: [invigilator_id], references: [id], onDelete: SetNull)
+
+  @@map("exam_schedules")
+}
+
+model ExamRegistration {
+  id                Int      @id @default(autoincrement())
+  exam_id           Int
+  student_id        Int
+  seat_no           String?
+  admit_card_number String?
+  is_eligible       Boolean  @default(true)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  exam    Exam    @relation(fields: [exam_id], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("exam_registrations")
+}
+
+model ExamMark {
+  id                  Int      @id @default(autoincrement())
+  exam_id             Int
+  subject_id          Int
+  student_id          Int
+  internal_marks      Float    @default(0)
+  external_marks      Float    @default(0)
+  total_marks         Float    @default(0)
+  grade               String?
+  grade_point         Float    @default(0)
+  credits             Float    @default(4.0)
+  result_status       String   @default("Pass")
+  is_verified         Boolean  @default(false)
+  reevaluation_status String   @default("None")
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  exam    Exam    @relation(fields: [exam_id], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@unique([exam_id, subject_id, student_id])
+  @@map("exam_marks")
+}
+
+model LibraryBook {
+  id               Int      @id @default(autoincrement())
+  isbn             String?
+  accession_no     String   @unique
+  barcode          String?
+  title            String
+  author           String
+  publisher        String?
+  subject_category String
+  rack_location    String?
+  book_type        String   @default("Regular")
+  ebook_url        String?
+  total_copies     Int      @default(1)
+  available_copies Int      @default(1)
+  status           String   @default("Available")
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  libraryIssues LibraryIssue[]
+
+  @@map("library_books")
+}
+
+model LibraryIssue {
+  id              Int       @id @default(autoincrement())
+  library_book_id Int
+  user_id         Int
+  member_type     String    @default("Student")
+  issue_date      DateTime
+  due_date        DateTime
+  return_date     DateTime?
+  status          String    @default("Issued")
+  fine_amount     Float     @default(0)
+  fine_paid       Boolean   @default(false)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  libraryBook LibraryBook @relation(fields: [library_book_id], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("library_issues")
+}
+
+model FeeStructure {
+  id            Int      @id @default(autoincrement())
+  course_id     Int
+  semester      Int      @default(1)
+  category      String   @default("All")
+  admission_fee Float    @default(0)
+  tuition_fee   Float    @default(0)
+  exam_fee      Float    @default(0)
+  library_fee   Float    @default(0)
+  lab_fee       Float    @default(0)
+  hostel_fee    Float    @default(0)
+  transport_fee Float    @default(0)
+  misc_fee      Float    @default(0)
+  total_fee     Float    @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  course             Course              @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  studentFeeAccounts StudentFeeAccount[]
+
+  @@map("fee_structures")
+}
+
+model StudentFeeAccount {
+  id                  Int       @id @default(autoincrement())
+  student_id          Int
+  fee_structure_id    Int?
+  academic_session_id Int?
+  total_amount        Float
+  concession_amount   Float     @default(0)
+  scholarship_amount  Float     @default(0)
+  late_penalty        Float     @default(0)
+  paid_amount         Float     @default(0)
+  balance_amount      Float
+  due_date            DateTime?
+  status              String    @default("Pending")
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  student         Student          @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  feeStructure    FeeStructure?    @relation(fields: [fee_structure_id], references: [id], onDelete: SetNull)
+  academicSession AcademicSession? @relation(fields: [academic_session_id], references: [id], onDelete: SetNull)
+  feePayments     FeePayment[]
+
+  @@map("student_fee_accounts")
+}
+
+model FeePayment {
+  id                     Int      @id @default(autoincrement())
+  student_fee_account_id Int
+  student_id             Int
+  receipt_no             String   @unique
+  amount                 Float
+  payment_mode           String   @default("UPI")
+  transaction_ref        String?
+  payment_date           DateTime
+  status                 String   @default("Completed")
+  refund_amount          Float    @default(0)
+  remarks                String?
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
+
+  studentFeeAccount StudentFeeAccount @relation(fields: [student_fee_account_id], references: [id], onDelete: Cascade)
+  student           Student           @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("fee_payments")
+}
+
+model ChartOfAccount {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique
+  name         String
+  account_type String
+  balance      Float    @default(0)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  financialVouchers_debitAccount  FinancialVoucher[] @relation("FinancialVoucher_debit_account_id")
+  financialVouchers_creditAccount FinancialVoucher[] @relation("FinancialVoucher_credit_account_id")
+
+  @@map("chart_of_accounts")
+}
+
+model FinancialVoucher {
+  id                Int      @id @default(autoincrement())
+  voucher_no        String   @unique
+  voucher_type      String
+  voucher_date      DateTime
+  debit_account_id  Int
+  credit_account_id Int
+  amount            Float
+  gst_amount        Float    @default(0)
+  tds_amount        Float    @default(0)
+  department_id     Int?
+  narration         String
+  created_by        Int?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  debitAccount  ChartOfAccount @relation("FinancialVoucher_debit_account_id", fields: [debit_account_id], references: [id], onDelete: Cascade)
+  creditAccount ChartOfAccount @relation("FinancialVoucher_credit_account_id", fields: [credit_account_id], references: [id], onDelete: Cascade)
+  department    Department?    @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  createdBy     User?          @relation(fields: [created_by], references: [id], onDelete: SetNull)
+
+  @@map("financial_vouchers")
+}
+
+model DepartmentBudget {
+  id               Int      @id @default(autoincrement())
+  department_id    Int
+  financial_year   String
+  allocated_amount Float
+  utilized_amount  Float    @default(0)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  department Department @relation(fields: [department_id], references: [id], onDelete: Cascade)
+
+  @@map("department_budgets")
+}
+
+model FixedAsset {
+  id                Int      @id @default(autoincrement())
+  asset_code        String   @unique
+  name              String
+  category          String
+  department_id     Int?
+  purchase_date     DateTime
+  purchase_cost     Float
+  depreciation_rate Float    @default(10.00)
+  current_value     Float
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  department Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
+
+  @@map("fixed_assets")
+}
+
+model Vendor {
+  id             Int      @id @default(autoincrement())
+  name           String
+  gstin          String?
+  pan            String?
+  contact_person String?
+  phone          String
+  email          String?
+  address        String?
+  category       String   @default("General")
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  purchaseOrders PurchaseOrder[]
+
+  @@map("vendors")
+}
+
+model PurchaseRequisition {
+  id               Int      @id @default(autoincrement())
+  req_no           String   @unique
+  department_id    Int
+  requested_by     Int?
+  item_description String
+  quantity         Int      @default(1)
+  estimated_cost   Float
+  status           String   @default("Pending")
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  department     Department      @relation(fields: [department_id], references: [id], onDelete: Cascade)
+  requestedBy    User?           @relation(fields: [requested_by], references: [id], onDelete: SetNull)
+  purchaseOrders PurchaseOrder[]
+
+  @@map("purchase_requisitions")
+}
+
+model PurchaseOrder {
+  id                      Int      @id @default(autoincrement())
+  po_no                   String   @unique
+  vendor_id               Int
+  purchase_requisition_id Int?
+  order_date              DateTime
+  total_amount            Float
+  status                  String   @default("Ordered")
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
+
+  vendor              Vendor               @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
+  purchaseRequisition PurchaseRequisition? @relation(fields: [purchase_requisition_id], references: [id], onDelete: SetNull)
+
+  @@map("purchase_orders")
+}
+
+model InventoryItem {
+  id               Int      @id @default(autoincrement())
+  item_code        String   @unique
+  name             String
+  category         String   @default("Lab Equipment")
+  department_id    Int?
+  quantity         Int      @default(0)
+  unit             String   @default("Pcs")
+  reorder_level    Int      @default(5)
+  condition_status String   @default("Good")
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  department Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
+
+  @@map("inventory_items")
+}
+
+model Hostel {
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        String   @default("Boys")
+  warden_id   Int?
+  total_rooms Int      @default(50)
+  capacity    Int      @default(150)
+  monthly_fee Float    @default(4500.00)
+  mess_fee    Float    @default(3500.00)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  warden            Employee?          @relation(fields: [warden_id], references: [id], onDelete: SetNull)
+  hostelRooms       HostelRoom[]
+  hostelAllocations HostelAllocation[]
+  hostelActivities  HostelActivity[]
+
+  @@map("hostels")
+}
+
+model HostelRoom {
+  id            Int      @id @default(autoincrement())
+  hostel_id     Int
+  floor         String   @default("Ground")
+  room_no       String
+  capacity      Int      @default(3)
+  occupied_beds Int      @default(0)
+  room_type     String   @default("Triple")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  hostel            Hostel             @relation(fields: [hostel_id], references: [id], onDelete: Cascade)
+  hostelAllocations HostelAllocation[]
+
+  @@map("hostel_rooms")
+}
+
+model HostelAllocation {
+  id             Int      @id @default(autoincrement())
+  hostel_id      Int
+  hostel_room_id Int
+  student_id     Int
+  bed_no         String
+  check_in_date  DateTime
+  status         String   @default("Active")
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  hostel     Hostel     @relation(fields: [hostel_id], references: [id], onDelete: Cascade)
+  hostelRoom HostelRoom @relation(fields: [hostel_room_id], references: [id], onDelete: Cascade)
+  student    Student    @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("hostel_allocations")
+}
+
+model HostelActivity {
+  id            Int      @id @default(autoincrement())
+  hostel_id     Int
+  student_id    Int?
+  activity_type String   @default("Complaint")
+  title         String
+  details       String?
+  status        String   @default("Open")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  hostel  Hostel   @relation(fields: [hostel_id], references: [id], onDelete: Cascade)
+  student Student? @relation(fields: [student_id], references: [id], onDelete: SetNull)
+
+  @@map("hostel_activities")
+}
+
+model TransportVehicle {
+  id                Int       @id @default(autoincrement())
+  registration_no   String    @unique
+  vehicle_type      String    @default("Bus")
+  capacity          Int       @default(45)
+  driver_name       String
+  driver_phone      String
+  driver_license    String?
+  insurance_expiry  DateTime?
+  fitness_expiry    DateTime?
+  gps_device_id     String?
+  last_fuel_liters  Float     @default(0)
+  maintenance_notes String?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  transportRoutes TransportRoute[]
+
+  @@map("transport_vehicles")
+}
+
+model TransportRoute {
+  id                   Int      @id @default(autoincrement())
+  route_name           String
+  transport_vehicle_id Int?
+  stops_json           String?
+  monthly_fee          Float    @default(1800.00)
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  transportVehicle     TransportVehicle?     @relation(fields: [transport_vehicle_id], references: [id], onDelete: SetNull)
+  transportAllocations TransportAllocation[]
+
+  @@map("transport_routes")
+}
+
+model TransportAllocation {
+  id                 Int      @id @default(autoincrement())
+  transport_route_id Int
+  student_id         Int
+  pickup_stop        String
+  start_date         DateTime
+  status             String   @default("Active")
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  transportRoute TransportRoute @relation(fields: [transport_route_id], references: [id], onDelete: Cascade)
+  student        Student        @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("transport_allocations")
+}
+
+model LmsMaterial {
+  id            Int      @id @default(autoincrement())
+  subject_id    Int
+  faculty_id    Int?
+  title         String
+  material_type String   @default("PDF")
+  file_url      String?
+  description   String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  subject Subject   @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  faculty Employee? @relation(fields: [faculty_id], references: [id], onDelete: SetNull)
+
+  @@map("lms_materials")
+}
+
+model LmsAssignment {
+  id          Int      @id @default(autoincrement())
+  subject_id  Int
+  faculty_id  Int?
+  title       String
+  description String?
+  due_date    DateTime
+  max_marks   Int      @default(20)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  subject        Subject         @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  faculty        Employee?       @relation(fields: [faculty_id], references: [id], onDelete: SetNull)
+  lmsSubmissions LmsSubmission[]
+
+  @@map("lms_assignments")
+}
+
+model LmsSubmission {
+  id                Int      @id @default(autoincrement())
+  lms_assignment_id Int
+  student_id        Int
+  submission_url    String?
+  submission_notes  String?
+  submitted_at      DateTime
+  marks_obtained    Float?
+  feedback          String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  lmsAssignment LmsAssignment @relation(fields: [lms_assignment_id], references: [id], onDelete: Cascade)
+  student       Student       @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("lms_submissions")
+}
+
+model LmsDiscussion {
+  id         Int      @id @default(autoincrement())
+  subject_id Int
+  user_id    Int
+  topic      String
+  message    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  subject Subject @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("lms_discussions")
+}
+
+model PlacementCompany {
+  id         Int      @id @default(autoincrement())
+  name       String
+  industry   String
+  hr_name    String?
+  hr_email   String?
+  hr_phone   String?
+  website    String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  placementDrives PlacementDrive[]
+
+  @@map("placement_companies")
+}
+
+model PlacementDrive {
+  id                   Int      @id @default(autoincrement())
+  placement_company_id Int
+  job_title            String
+  package_lpa          Float
+  eligibility_cgpa     Float    @default(6.00)
+  drive_date           DateTime
+  location             String   @default("Campus")
+  drive_type           String   @default("Full-Time")
+  status               String   @default("Upcoming")
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  placementCompany      PlacementCompany       @relation(fields: [placement_company_id], references: [id], onDelete: Cascade)
+  placementApplications PlacementApplication[]
+
+  @@map("placement_drives")
+}
+
+model PlacementApplication {
+  id                 Int       @id @default(autoincrement())
+  placement_drive_id Int
+  student_id         Int
+  resume_url         String?
+  aptitude_score     Int?
+  interview_date     DateTime?
+  status             String    @default("Applied")
+  offer_letter_url   String?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  placementDrive PlacementDrive @relation(fields: [placement_drive_id], references: [id], onDelete: Cascade)
+  student        Student        @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("placement_applications")
+}
+
+model Scholarship {
+  id                   Int      @id @default(autoincrement())
+  name                 String
+  scheme_type          String   @default("Government")
+  amount               Float
+  eligibility_criteria String?
+  academic_session_id  Int?
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  academicSession         AcademicSession?         @relation(fields: [academic_session_id], references: [id], onDelete: SetNull)
+  scholarshipApplications ScholarshipApplication[]
+
+  @@map("scholarships")
+}
+
+model ScholarshipApplication {
+  id               Int       @id @default(autoincrement())
+  scholarship_id   Int
+  student_id       Int
+  status           String    @default("Applied")
+  disbursed_amount Float     @default(0)
+  disbursed_at     DateTime?
+  remarks          String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  scholarship Scholarship @relation(fields: [scholarship_id], references: [id], onDelete: Cascade)
+  student     Student     @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("scholarship_applications")
+}
+
+model Certificate {
+  id                 Int       @id @default(autoincrement())
+  certificate_no     String    @unique
+  student_id         Int
+  certificate_type   String    @default("Bonafide")
+  issue_date         DateTime?
+  status             String    @default("Requested")
+  verification_token String    @unique
+  remarks            String?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  student Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("certificates")
+}
+
+model Grievance {
+  id               Int      @id @default(autoincrement())
+  ticket_no        String   @unique
+  student_id       Int?
+  category         String   @default("General")
+  is_confidential  Boolean  @default(false)
+  subject          String
+  description      String
+  assigned_to      Int?
+  status           String   @default("Submitted")
+  resolution_notes String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  student    Student? @relation(fields: [student_id], references: [id], onDelete: SetNull)
+  assignedTo User?    @relation(fields: [assigned_to], references: [id], onDelete: SetNull)
+
+  @@map("grievances")
+}
+
+model DisciplinaryRecord {
+  id                Int      @id @default(autoincrement())
+  student_id        Int
+  incident_date     DateTime
+  description       String
+  action_taken      String
+  counselling_notes String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  student Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("disciplinary_records")
+}
+
+model CampusEvent {
+  id            Int      @id @default(autoincrement())
+  title         String
+  category      String   @default("Seminar")
+  event_date    DateTime
+  venue         String
+  budget        Float    @default(0)
+  department_id Int?
+  description   String?
+  status        String   @default("Planned")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  department         Department?         @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  eventRegistrations EventRegistration[]
+
+  @@map("campus_events")
+}
+
+model EventRegistration {
+  id                 Int      @id @default(autoincrement())
+  campus_event_id    Int
+  student_id         Int
+  attended           Boolean  @default(false)
+  certificate_issued Boolean  @default(false)
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  campusEvent CampusEvent @relation(fields: [campus_event_id], references: [id], onDelete: Cascade)
+  student     Student     @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("event_registrations")
+}
+
+model Alumnus {
+  id              Int      @id @default(autoincrement())
+  student_id      Int?
+  full_name       String
+  email           String
+  phone           String?
+  graduation_year Int
+  course_id       Int?
+  current_company String?
+  designation     String?
+  city            String?
+  is_mentor       Boolean  @default(false)
+  donation_total  Float    @default(0)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  student Student? @relation(fields: [student_id], references: [id], onDelete: SetNull)
+  course  Course?  @relation(fields: [course_id], references: [id], onDelete: SetNull)
+
+  @@map("alumni")
+}
+
+model AccreditationRecord {
+  id             Int      @id @default(autoincrement())
+  framework      String   @default("NAAC")
+  cycle_year     String
+  criterion      String
+  metric_code    String?
+  title          String
+  score_or_value String?
+  department_id  Int?
+  evidence_url   String?
+  status         String   @default("Verified")
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  department Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
+
+  @@map("accreditation_records")
+}
+
+model ResearchRecord {
+  id                Int      @id @default(autoincrement())
+  record_type       String   @default("Faculty Publication")
+  title             String
+  lead_name         String
+  department_id     Int?
+  funding_agency    String?
+  grant_amount      Float    @default(0)
+  publication_venue String?
+  patent_no         String?
+  year              Int      @default(2026)
+  status            String   @default("Published")
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  department Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
+
+  @@map("research_records")
+}
+
+model Announcement {
+  id              Int       @id @default(autoincrement())
+  title           String
+  message         String
+  target_audience String    @default("All")
+  department_id   Int?
+  channel         String    @default("Portal")
+  is_emergency    Boolean   @default(false)
+  published_at    DateTime?
+  created_by      Int?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  department Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  createdBy  User?       @relation(fields: [created_by], references: [id], onDelete: SetNull)
+
+  @@map("announcements")
+}
+
+model NotificationLog {
+  id                Int       @id @default(autoincrement())
+  recipient_name    String
+  recipient_contact String
+  channel           String    @default("Email")
+  subject           String
+  message           String
+  status            String    @default("Sent")
+  sent_at           DateTime?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  @@map("notification_logs")
+}
