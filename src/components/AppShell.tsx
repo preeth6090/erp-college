@@ -23,9 +23,9 @@ export function AppShell({ brand, nav, footer, header, viewOnly = [], children }
       {open && <div className="no-print fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} aria-hidden />}
       <aside
         id="sidebar"
-        className={`no-print fixed inset-y-0 left-0 z-40 flex w-72 max-w-[85vw] flex-shrink-0 flex-col bg-slate-900 text-slate-200 transition-transform duration-200 lg:sticky lg:top-0 lg:h-dvh lg:w-64 lg:max-w-none lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`no-print fixed inset-y-0 left-0 z-40 flex w-72 max-w-[85vw] flex-shrink-0 flex-col bg-gradient-to-b from-slate-900 via-slate-900 to-[#0b1020] text-slate-200 transition-transform duration-200 lg:sticky lg:top-0 lg:h-dvh lg:w-64 lg:max-w-none lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className="flex items-start justify-between border-b border-slate-800 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
           <div>{brand}</div>
           <button type="button" onClick={() => setOpen(false)} className="-mr-2 rounded-lg p-2 text-slate-400 hover:bg-slate-800 lg:hidden" aria-label="Close menu">✕</button>
         </div>

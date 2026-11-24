@@ -8,7 +8,7 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
   return (
     <div className="no-print mb-5 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
+        <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">{title}</h2>
         {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
@@ -18,14 +18,14 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 
 export function Card({ title, children, className = '', actions }: { title?: string; children: ReactNode; className?: string; actions?: ReactNode }) {
   return (
-    <section className={`rounded-xl border border-slate-200 bg-white shadow-sm ${className}`}>
+    <section className={`min-w-0 rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,.04)] ${className}`}>
       {title && (
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
           <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
           {actions}
         </div>
       )}
-      <div className="p-5">{children}</div>
+      <div className="min-w-0 p-4 sm:p-5">{children}</div>
     </section>
   );
 }
@@ -50,7 +50,7 @@ export function Table({ head, children, empty }: { head: string[]; children: Rea
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+          <tr className="border-b border-slate-200 bg-slate-50/70 text-[11px] uppercase tracking-wider text-slate-500">
             {head.map((h) => (
               <th key={h} className="px-3 py-2 font-semibold">{h}</th>
             ))}

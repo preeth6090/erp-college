@@ -31,7 +31,16 @@ export function LineChart({ labels, series, money = false, percent = false }: { 
     <Line
       data={{
         labels,
-        datasets: series.map((s) => ({ label: s.label, data: s.data, borderColor: s.color, backgroundColor: s.color + '22', fill: true, tension: 0.35, pointRadius: 3, pointBackgroundColor: s.color, borderWidth: 2 })),
+        datasets: series.map((s) => ({
+          label: s.label, data: s.data, borderColor: s.color, fill: true, tension: 0.4, pointRadius: 0, pointHoverRadius: 5, pointBackgroundColor: s.color, borderWidth: 2.5,
+          backgroundColor: (ctx: { chart: ChartJS }) => {
+            const { ctx: c, chartArea } = ctx.chart;
+            if (!chartArea) return s.color + '22';
+            const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            g.addColorStop(0, s.color + '55'); g.addColorStop(1, s.color + '00');
+            return g;
+          },
+        })),
       }}
       options={{
         maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },

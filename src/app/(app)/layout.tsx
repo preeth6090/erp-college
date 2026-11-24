@@ -6,6 +6,8 @@ import { NAV } from '@/lib/nav';
 import { CREATOR_LINE } from '@/lib/brand';
 import { Sidebar } from '@/components/Sidebar';
 import { AppShell } from '@/components/AppShell';
+import { Logo } from '@/components/Logo';
+import { LogOut, KeyRound, ExternalLink } from 'lucide-react';
 import { logout } from '@/actions/auth';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -23,28 +25,28 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <AppShell
       viewOnly={viewOnly}
-      brand={
-        <>
-          <div className="text-lg font-bold tracking-tight text-white">College <span className="text-xs font-normal text-indigo-400">ERP</span></div>
-          <div className="text-[11px] text-slate-400">Indian Higher-Ed Suite (30 Modules)</div>
-        </>
-      }
+      brand={<Logo />}
       nav={<Sidebar groups={groups} />}
-      footer={<div className="border-t border-slate-800 px-5 py-3 text-[11px] text-slate-500">{CREATOR_LINE}</div>}
+      footer={<div className="border-t border-white/5 px-5 py-3 text-[11px] text-slate-500">{CREATOR_LINE}</div>}
       header={
         <>
           {can(user, 'admissions', 'edit') && (
-            <Link href="/apply" target="_blank" className="hidden rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 font-medium text-amber-700 hover:bg-amber-100 sm:inline-block">
-              Admission Form ↗
+            <Link href="/apply" target="_blank" className="hidden items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-100 sm:inline-flex">
+              Admission form <ExternalLink className="h-3.5 w-3.5" />
             </Link>
           )}
-          <div className="min-w-0 text-right">
-            <div className="truncate font-semibold text-slate-800">{user.name}</div>
-            <div className="truncate text-[11px] text-slate-500">{user.role?.name ?? 'User'}</div>
+          <Link href="/account/password" title="Change password" className="hidden rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 sm:inline-flex"><KeyRound className="h-4 w-4" /></Link>
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-xs font-bold text-white shadow-sm">
+              {user.name.replace(/\(.*\)/, '').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
+            </span>
+            <div className="hidden min-w-0 text-left leading-tight sm:block">
+              <div className="truncate text-sm font-semibold text-slate-800">{user.name.replace(/\(.*\)/, '').trim()}</div>
+              <div className="truncate text-[11px] text-slate-500">{user.role?.name ?? 'User'}</div>
+            </div>
           </div>
-          <Link href="/account/password" className="hidden rounded-md px-2 py-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 sm:inline-block">Change password</Link>
           <form action={logout}>
-            <button type="submit" className="rounded-md bg-slate-800 px-3 py-2 text-white hover:bg-slate-700">Logout</button>
+            <button type="submit" title="Sign out" className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-700"><LogOut className="h-4 w-4" /><span className="hidden sm:inline">Sign out</span></button>
           </form>
         </>
       }

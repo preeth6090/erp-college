@@ -18,6 +18,7 @@
     "bcryptjs": "^3.0.3",
     "chart.js": "^4.6.1",
     "jose": "^6.2.18",
+    "lucide-react": "^1.79.0",
     "next": "^16.4.6",
     "qrcode": "^1.5.4",
     "react": "^19.3.1",
@@ -42,7 +43,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "author": "Timestamp India",
-  "description": "College ERP \u2014 30-module higher-education management system (Next.js, React, Prisma).",
+  "description": "College ERP — 30-module higher-education management system (Next.js, React, Prisma).",
   "engines": {
     "node": ">=20"
   }
