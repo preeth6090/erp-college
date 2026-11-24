@@ -713,7 +713,7 @@ async function main() {
         await mk('Announcement', {title: 'Fee Payment Reminder: Odd Semester Due 30 Nov', message: 'Students with pending tuition fees are requested to clear dues via UPI/NetBanking to avoid late penalty.', target_audience: 'Students', channel: 'WhatsApp', published_at: new Date(), created_by: adminUser.id});
 
         await mk('NotificationLog', {recipient_name: 'Aarav Kulkarni', recipient_contact: '9900112233', channel: 'WhatsApp', subject: 'Admit Card Ready', message: 'Your Nov 2026 Admit Card is ready for download.', status: 'Sent', sent_at: new Date()});
-        await mk('AuditLog', {user_id: adminUser.id, action: 'SEED_INITIALIZED', module: 'System', description: 'Initialized Indian College Management Software with 30 modules.', ip_address: '127.0.0.1'});
+        await mk('AuditLog', {user_id: adminUser.id, action: 'SEED_INITIALIZED', module: 'System', description: 'Initialized College ERP.', ip_address: '127.0.0.1'});
 
         await mk('SystemSetting', {group_name: 'general', key: 'institution_name', value: 'University Group'});
         await mk('SystemSetting', {group_name: 'grading', key: 'grading_scale', value: JSON.stringify({ O: 10, 'A+': 9, A: 8, 'B+': 7, B: 6, C: 5, F: 0 })});

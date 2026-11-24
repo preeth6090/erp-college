@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 
 export const metadata: Metadata = {
   title: { default: 'College ERP', template: '%s — College ERP' },
-  description: 'Complete 30-module Indian college & higher-education management system (NEP 2020, NAAC ready).',
+  description: 'Manage students, staff, fees and academics in one place.',
   authors: [{ name: 'Timestamp India' }],
   creator: 'Timestamp India',
 };

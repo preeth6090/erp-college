@@ -21,7 +21,6 @@ export function Logo({ className = '', dark = false }: { className?: string; dar
       <LogoMark size={34} />
       <span className="leading-none">
         <span className={`block text-[17px] font-bold tracking-tight ${dark ? 'text-slate-900' : 'text-white'}`}>College <span className="text-indigo-400">ERP</span></span>
-        <span className={`mt-0.5 block text-[10px] font-medium uppercase tracking-[0.14em] ${dark ? 'text-slate-500' : 'text-slate-400'}`}>Higher-Ed Suite</span>
       </span>
     </span>
   );

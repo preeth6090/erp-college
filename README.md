@@ -1,6 +1,6 @@
-# College ERP — Complete Higher-Education Management System
+# College ERP
 
-A comprehensive Indian College & Higher-Education Management System built with **Next.js (React)**, **TypeScript**, **Tailwind CSS** and **Prisma** on **SQLite**. Compliant with **NEP 2020**, **CBCS**, **AISHE**, and **NAAC / NIRF** requirements.
+College ERP is built with **Next.js (React)**, **TypeScript**, **Tailwind CSS** and **Prisma** on **PostgreSQL**.
 
 *Created by Timestamp India.*
 

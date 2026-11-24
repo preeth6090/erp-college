@@ -11,7 +11,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       </header>
       <main className="container mx-auto flex-1 px-4 py-8">{children}</main>
       <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">
-        {APP_NAME} &bull; Complete 30-Module Institutional Suite (NEP 2020 &amp; NAAC Ready) &bull; {CREATOR_LINE}
+        {APP_NAME} &bull; {CREATOR_LINE}
       </footer>
     </div>
   );

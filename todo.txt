@@ -1,4 +1,4 @@
-Complete Indian College Management Software (Next.js + React + Prisma) – Modules
+College ERP – Modules
 1. Dashboard & Analytics
 - Total students, faculty and staff.
 - New admission enquiries.
@@ -432,7 +432,6 @@ Core module
 - Alumni communication.
 - Alumni contribution tracking.
 27. Accreditation & Compliance Management
-Important for Indian higher education institutions.
 - NAAC documentation.
 - NIRF data management.
 - AISHE data preparation.
