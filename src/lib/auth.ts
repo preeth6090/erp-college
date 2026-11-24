@@ -6,6 +6,7 @@ import { unstable_cache } from 'next/cache';
 import { SignJWT, jwtVerify } from 'jose';
 import { db } from './db';
 import { MODULES, type Level, type ModuleKey } from './modules';
+import { getLicense, licenseProblem } from './license';
 
 const COOKIE = 'erp_session';
 const secret = () => {
@@ -67,35 +68,46 @@ export const getUser = cache(async () => {
     let role: RoleClaim | null = claim && claim.id === row.role_id ? claim : null;
     if (!role && row.role_id) role = await db.role.findUnique({ where: { id: row.role_id }, select: { id: true, slug: true, name: true } });
     const perms = role ? await permsForRole(role.id) : [];
-    return { ...row, role, perms: new Set(perms) };
+    // The software owner can grant/withdraw modules and end an institution's access; owners themselves are never locked out.
+    const license = await getLicense();
+    const owner = role?.slug === 'owner';
+    if (!owner && licenseProblem(license)) return null;
+    const enabled = owner || !license.modules ? null : new Set(license.modules);
+    return { ...row, role, perms: new Set(perms), enabled, institution: license.institution_name };
   } catch {
     return null;
   }
 });
 export type SessionUser = NonNullable<Awaited<ReturnType<typeof getUser>>>;
 
-export const isAdmin = (u: { role: { slug: string } | null }) => u.role?.slug === 'super_admin';
+export const isOwner = (u: { role: { slug: string } | null }) => u.role?.slug === 'owner';
+/** College administrators and the software owner can do everything their licence allows. */
+export const isAdmin = (u: { role: { slug: string } | null }) => u.role?.slug === 'super_admin' || u.role?.slug === 'owner';
 
 /** Can the user open (view) / change (edit) a module? Super admins can do everything. */
 export function can(u: SessionUser, module: ModuleKey, level: Level = 'view') {
+  if (isOwner(u)) return true;
+  if (u.enabled && !u.enabled.has(module)) return false; // module not granted to this institution
   return isAdmin(u) || u.perms.has(`${module}:${level}`);
 }
 
-/** Where a user lands after signing in. */
-export function homeFor(u: { role: { slug: string } | null; perms: Set<string> }) {
+/** Where a user lands after signing in. `enabled` = modules the institution has been granted (null = all). */
+export function homeFor(u: { role: { slug: string } | null; perms: Set<string>; enabled?: Set<string> | null }) {
   const slug = u.role?.slug;
-  if (slug === 'super_admin') return '/dashboard';
+  const on = (k: string) => !u.enabled || u.enabled.has(k);
+  if (slug === 'owner') return '/owner';
   if (slug === 'student') return '/portal/student';
   if (slug === 'faculty') return '/portal/faculty';
   if (slug === 'parent') return '/portal/parent';
+  if (slug === 'super_admin') return (MODULES.find((m) => on(m.key)) ?? { href: '/welcome' }).href;
   // land on the first module they can *work in*, otherwise the first they can view
-  const first = MODULES.find((m) => u.perms.has(`${m.key}:edit`)) ?? MODULES.find((m) => u.perms.has(`${m.key}:view`));
+  const first = MODULES.find((m) => on(m.key) && u.perms.has(`${m.key}:edit`)) ?? MODULES.find((m) => on(m.key) && u.perms.has(`${m.key}:view`));
   return first ? first.href : '/welcome';
 }
 
 export function hasRole(user: SessionUser, roles: Role[]) {
   const slug = user.role?.slug;
-  return !!slug && (slug === 'super_admin' || roles.includes(slug));
+  return !!slug && (slug === 'super_admin' || slug === 'owner' || roles.includes(slug));
 }
 
 /** Page guard for self-service portals: restricts by role slug (these pages are bound to the user's own record). */
@@ -123,5 +135,13 @@ export async function requireAccess(opts: { module?: ModuleKey; roles?: Role[] }
   if (user.must_change_password) redirect('/account/password');
   const ok = isAdmin(user) || (opts.module && can(user, opts.module)) || (opts.roles && hasRole(user, opts.roles));
   if (!ok) redirect('/forbidden');
+  return user;
+}
+
+/** Page guard for the owner console. */
+export async function requireOwner(): Promise<SessionUser> {
+  const user = await getUser();
+  if (!user) redirect('/login');
+  if (!isOwner(user)) redirect('/forbidden');
   return user;
 }

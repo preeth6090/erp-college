@@ -1,10 +1,10 @@
 import { db } from '@/lib/db';
-import { getUser } from '@/lib/auth';
+import { getUser, isAdmin } from '@/lib/auth';
 import { audit } from '@/lib/action';
 
 export async function GET() {
   const user = await getUser();
-  if (user?.role?.slug !== 'super_admin') return new Response('Forbidden', { status: 403 });
+  if (!user || !isAdmin(user)) return new Response('Forbidden', { status: 403 });
   await audit(user, 'DB_BACKUP', 'Settings', 'Downloaded database snapshot JSON backup.');
   const payload = {
     exported_at: new Date().toISOString(),

@@ -8,6 +8,7 @@ import { db } from '@/lib/db';
 import { createSession, destroySession, getUser, homeFor, permsForRole } from '@/lib/auth';
 import { audit } from '@/lib/action';
 import { checkPassword, getPolicy } from '@/lib/policy';
+import { getLicense, licenseProblem } from '@/lib/license';
 
 export type LoginState = { error?: string; email?: string } | null;
 const GENERIC = 'Invalid email or password, or the account is inactive.';
@@ -52,7 +53,10 @@ export async function login(_prev: LoginState, fd: FormData): Promise<LoginState
     return { error: GENERIC, email };
   }
 
-  // Success
+  // Success — but an institution whose subscription is suspended/ended cannot sign in (the owner always can)
+  const license = await getLicense();
+  const blocked = user.role?.slug === 'owner' ? null : licenseProblem(license);
+  if (blocked) { await log(user.id, 'LOGIN_BLOCKED', `Sign-in blocked (licence): ${email}`); return { error: blocked, email }; }
   const expired = policy.password_expiry_days > 0 && user.password_changed_at && now.getTime() - user.password_changed_at.getTime() > policy.password_expiry_days * 86400000;
   await db.user.update({ where: { id: user.id }, data: { failed_attempts: 0, locked_until: null, last_login_at: now, ...(expired ? { must_change_password: true } : {}) } });
   const remember = policy.allow_remember && fd.get('remember') === '1';
@@ -63,7 +67,7 @@ export async function login(_prev: LoginState, fd: FormData): Promise<LoginState
   await log(user.id, 'LOGIN', `User signed in: ${email}${remember ? ' (remembered)' : ''}`);
   if (user.must_change_password || expired) redirect('/account/password');
   const perms = new Set(user.role ? await permsForRole(user.role.id) : []);
-  redirect(homeFor({ role: user.role, perms }));
+  redirect(homeFor({ role: user.role, perms, enabled: user.role?.slug === 'owner' || !license.modules ? null : new Set(license.modules) }));
 }
 
 export async function logout() {
@@ -92,5 +96,6 @@ export async function changePassword(_prev: PasswordState, fd: FormData): Promis
   // the change signs out other sessions, so start a fresh one here
   await createSession(user.id, { role: row.role ? { id: row.role.id, slug: row.role.slug, name: row.role.name } : null, hours: policy.session_hours });
   const perms = new Set(row.role ? await permsForRole(row.role.id) : []);
-  redirect(homeFor({ role: row.role, perms }));
+  const lic = await getLicense();
+  redirect(homeFor({ role: row.role, perms, enabled: row.role?.slug === 'owner' || !lic.modules ? null : new Set(lic.modules) }));
 }

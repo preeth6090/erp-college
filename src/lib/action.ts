@@ -1,20 +1,20 @@
 import 'server-only';
 import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
-import { can, getUser, hasRole, type Role, type SessionUser } from './auth';
+import { can, getUser, hasRole, isOwner, type Role, type SessionUser } from './auth';
 import type { Level, ModuleKey } from './modules';
 import { db } from './db';
 
 export type ActionState = { ok: boolean; message?: string; errors?: string[]; data?: unknown; ts: number } | null;
 
-/** Throw to show a friendly message to the user. */
-export class UserError extends Error {}
+import { UserError } from './errors';
+export { UserError };
 
 /**
  * Wraps a server action body: checks role, validates, reports success/failure
  * as state for <ActionForm>, and refreshes cached pages.
  */
-export type Guard = Role[] | null | { module: ModuleKey; level?: Level };
+export type Guard = Role[] | null | 'owner' | { module: ModuleKey; level?: Level };
 
 export type Outcome = string | void | { message: string; data?: unknown };
 
@@ -23,8 +23,9 @@ export async function run(guard: Guard, fn: (user: SessionUser) => Promise<Outco
     const user = await getUser();
     if (!user) throw new UserError('Your session has expired. Please sign in again.');
     if (user.must_change_password) throw new UserError('Please change your password first.');
+    if (guard === 'owner' && !isOwner(user)) throw new UserError('Only the software owner can do this.');
     if (Array.isArray(guard) && guard.length && !hasRole(user, guard)) throw new UserError('You do not have permission to perform this action.');
-    if (guard && !Array.isArray(guard) && !can(user, guard.module, guard.level ?? 'edit')) throw new UserError('You do not have permission to perform this action.');
+    if (guard && guard !== 'owner' && !Array.isArray(guard) && !can(user, guard.module, guard.level ?? 'edit')) throw new UserError('You do not have permission to perform this action.');
     const out = await fn(user);
     revalidatePath('/', 'layout');
     if (out && typeof out === 'object') return { ok: true, message: out.message, data: out.data, ts: Date.now() };

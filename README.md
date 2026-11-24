@@ -17,7 +17,7 @@ Demo logins (password: `password`, or `SEED_PASSWORD` if you set it before seedi
 
 | Role | Email |
 | --- | --- |
-| Super Admin | admin@college.edu.in |
+| College Administrator | admin@college.edu.in |
 | Faculty | faculty@college.edu.in |
 | Student | student@college.edu.in |
 | Parent | parent@college.edu.in |

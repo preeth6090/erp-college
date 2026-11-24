@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { db } from '@/lib/db';
-import { can, homeFor, requireModule } from '@/lib/auth';
+import { can, homeFor, isOwner, requireModule } from '@/lib/auth';
 import { getPolicy, describePolicy } from '@/lib/policy';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { PermMatrix } from '@/components/PermMatrix';
@@ -19,7 +19,7 @@ export default async function Access({ searchParams }: { searchParams: Promise<{
   const editable = can(me, 'access', 'edit');
   const sp = await searchParams;
   const tab = (TABS.find((t) => t[0] === sp.tab)?.[0] ?? 'roles') as (typeof TABS)[number][0];
-  const roles = await db.role.findMany({ include: { _count: { select: { users: true } }, rolePermissions: { include: { permission: true } } }, orderBy: { id: 'asc' } });
+  const roles = await db.role.findMany({ where: isOwner(me) ? {} : { slug: { not: 'owner' } }, include: { _count: { select: { users: true } }, rolePermissions: { include: { permission: true } } }, orderBy: { id: 'asc' } });
   const policy = await getPolicy();
 
   return (
@@ -58,8 +58,8 @@ export default async function Access({ searchParams }: { searchParams: Promise<{
               <Card title={sel.name} actions={<Badge tone={sel.is_system ? 'slate' : 'indigo'}>{sel.is_system ? 'Built-in' : 'Custom'}</Badge>}>
                 <p className="mb-3 text-sm text-slate-600">{sel.description || 'No description.'} <span className="text-slate-400">• {sel._count.users} member{sel._count.users === 1 ? '' : 's'}</span></p>
                 {portalRole && <div className="mb-3 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">This role signs in to a self-service portal that only ever shows the person&apos;s own records. Module access below is for any extra staff-style screens.</div>}
-                <PermMatrix key={sel.id} roleId={sel.id} roleName={sel.name} initial={sel.rolePermissions.map((p) => p.permission.slug)} locked={isAdminRole || !editable}
-                  lockedNote={isAdminRole ? 'Super Administrators always have full access to every module. This cannot be changed.' : 'You can view this role but not change it.'} />
+                <PermMatrix key={sel.id} allowed={MODULES.filter((m) => !me.enabled || me.enabled.has(m.key)).map((m) => m.key)} roleId={sel.id} roleName={sel.name} initial={sel.rolePermissions.map((p) => p.permission.slug)} locked={isAdminRole || !editable}
+                  lockedNote={isAdminRole ? 'College Administrators always have full access to every module. This cannot be changed.' : 'You can view this role but not change it.'} />
               </Card>
               {editable && !isAdminRole && (
                 <div className="grid gap-4 md:grid-cols-2">
@@ -88,9 +88,10 @@ export default async function Access({ searchParams }: { searchParams: Promise<{
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {await Promise.all(roles.map(async (r) => {
               const perms = new Set(r.rolePermissions.map((p) => p.permission.slug));
-              const home = homeFor({ role: { slug: r.slug }, perms });
-              const edit = MODULES.filter((m) => r.slug === 'super_admin' || perms.has(`${m.key}:edit`));
-              const view = MODULES.filter((m) => r.slug !== 'super_admin' && perms.has(`${m.key}:view`) && !perms.has(`${m.key}:edit`));
+              const home = homeFor({ role: { slug: r.slug }, perms, enabled: me.enabled });
+              const granted = MODULES.filter((m) => !me.enabled || me.enabled.has(m.key));
+              const edit = granted.filter((m) => r.slug === 'super_admin' || perms.has(`${m.key}:edit`));
+              const view = granted.filter((m) => r.slug !== 'super_admin' && perms.has(`${m.key}:view`) && !perms.has(`${m.key}:edit`));
               const sample = await db.user.findFirst({ where: { role_id: r.id }, orderBy: { id: 'asc' } });
               return (
                 <Card key={r.id} title={r.name} actions={<Link href={`/access?tab=roles&role=${r.slug}`} className="text-xs font-medium text-indigo-600">Edit →</Link>}>

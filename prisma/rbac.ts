@@ -21,8 +21,9 @@ export async function syncRbac(db: PrismaClient, opts: { demoUsers?: boolean; pa
     if (!role) {
       const c = await db.role.create({ data: { slug: r.slug, name: r.name, description: r.description, is_system: r.system } });
       role = { ...c, _count: { rolePermissions: 0 } };
-    } else if (r.system && !role.is_system) {
-      await db.role.update({ where: { id: role.id }, data: { is_system: true } });
+    } else if (r.system) {
+      // built-in roles keep their official name/description; permissions are never touched here
+      await db.role.update({ where: { id: role.id }, data: { is_system: true, name: r.name, description: r.description } });
     }
     if (role._count.rolePermissions === 0 && r.slug !== 'super_admin') {
       for (const [key, level] of r.grants) {

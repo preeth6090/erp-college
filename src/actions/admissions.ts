@@ -8,6 +8,7 @@ import { db } from '@/lib/db';
 import { run, runPublic, notify, UserError, type ActionState } from '@/lib/action';
 import { parse, str, optStr, optEmail, optDate, optNum, oneOf, int, optInt, email, bool } from '@/lib/validators';
 import { saveUpload } from '@/lib/upload';
+import { assertStudentCapacity } from '@/lib/license';
 import { todayDate, addDays } from '@/lib/format';
 
 const year = () => new Date().getFullYear();
@@ -85,6 +86,7 @@ export async function updateApplicationStatus(_p: ActionState, fd: FormData): Pr
     let regNo = app.registration_number;
 
     if (d.status === 'Confirmed' && !regNo) {
+      await assertStudentCapacity();
       regNo = `REG-${year()}-${pad(app.id, 4)}`;
       const course = app.course;
       const studentRole = await db.role.findUnique({ where: { slug: 'student' } });

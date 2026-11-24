@@ -4,6 +4,7 @@ import { initialPasswordHash } from '@/lib/defaults';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { run, type ActionState } from '@/lib/action';
+import { assertStaffCapacity } from '@/lib/license';
 import { parse, str, optStr, date, oneOf, int, optInt, num } from '@/lib/validators';
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
@@ -22,6 +23,7 @@ export async function storeEmployee(_p: ActionState, fd: FormData): Promise<Acti
     // Only teaching staff get a portal login (the original app granted super_admin to every non-faculty hire).
     let user_id: number | undefined;
     if (d.employee_type === 'Faculty') {
+      await assertStaffCapacity('faculty');
       const role = await db.role.findUnique({ where: { slug: 'faculty' } });
       const user = (await db.user.findUnique({ where: { email: d.email } })) ?? (await db.user.create({
         data: { name: d.full_name, email: d.email, password: initialPasswordHash(), role_id: role?.id, college_id: d.college_id, phone: d.phone },

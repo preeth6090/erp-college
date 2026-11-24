@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { can, getUser, isAdmin } from '@/lib/auth';
+import { can, getUser, isAdmin, isOwner } from '@/lib/auth';
 import { MODULES } from '@/lib/modules';
 import { NAV } from '@/lib/nav';
 import { CREATOR_LINE } from '@/lib/brand';
@@ -18,14 +18,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const groups = NAV.map((g) => ({
     ...g,
     // admins preview every portal; everyone else sees only their own role's portal
-    items: g.items.filter((i) => (i.module ? can(user, i.module) : isAdmin(user) || (i.roles ?? []).includes(slug))),
+    items: g.items.filter((i) => (i.ownerOnly ? isOwner(user) : i.module ? can(user, i.module) : isAdmin(user) || (i.roles ?? []).includes(slug))),
   })).filter((g) => g.items.length);
   const viewOnly = MODULES.filter((m) => can(user, m.key) && !can(user, m.key, 'edit')).map((m) => m.key);
 
   return (
     <AppShell
       viewOnly={viewOnly}
-      brand={<Logo />}
+      brand={<div className="min-w-0"><Logo />{user.institution && <div className="mt-1.5 truncate pl-0.5 text-[11px] font-medium text-slate-400">{user.institution}</div>}</div>}
       nav={<Sidebar groups={groups} />}
       footer={<div className="border-t border-white/5 px-5 py-3 text-[11px] text-slate-500">{CREATOR_LINE}</div>}
       header={

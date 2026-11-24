@@ -10,7 +10,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "setup": "prisma generate && prisma db push && tsx prisma/seed.ts",
     "typecheck": "tsc --noEmit",
-    "db:rbac": "tsx prisma/rbac-sync.ts"
+    "db:rbac": "tsx prisma/rbac-sync.ts",
+    "db:bootstrap": "tsx prisma/bootstrap.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

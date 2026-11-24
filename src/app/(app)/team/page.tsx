@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { can, requireModule } from '@/lib/auth';
+import { can, isOwner, requireModule } from '@/lib/auth';
 import { getPolicy } from '@/lib/policy';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { TeamAdd } from '@/components/TeamAdd';
@@ -15,6 +15,8 @@ const initials = (n: string) => n.replace(/\(.*\)/, '').trim().split(/\s+/).slic
 export default async function Team({ searchParams }: { searchParams: Promise<{ q?: string; role?: string; status?: string }> }) {
   const me = await requireModule('team');
   const editable = can(me, 'team', 'edit');
+  const seeOwners = isOwner(me);
+  const hideOwner = seeOwners ? {} : { NOT: { role: { slug: 'owner' } } }; // owner accounts are invisible to college admins
   const { q, role, status } = await searchParams;
   const now = new Date();
   const soon = new Date(now.getTime() + 14 * 86400000);
@@ -24,12 +26,13 @@ export default async function Team({ searchParams }: { searchParams: Promise<{ q
     db.user.findMany({
       where: {
         ...(q ? { OR: [{ name: { contains: q, mode: 'insensitive' } }, { email: { contains: q, mode: 'insensitive' } }] } : {}),
-        ...(role ? { role: { slug: role } } : {}),
+        ...(role && (role !== 'owner' || seeOwners) ? { role: { slug: role } } : {}),
+        ...hideOwner,
         ...(status === 'inactive' ? { status: 'Inactive' } : status === 'locked' ? { locked_until: { gt: now } } : status === 'expiring' ? { access_expires_at: { lte: soon, gt: now } } : status === 'active' ? { status: 'Active' } : {}),
       },
       include: { role: true, college: true }, orderBy: [{ role_id: 'asc' }, { name: 'asc' }], take: 300,
     }),
-    db.role.findMany({ orderBy: { id: 'asc' } }),
+    db.role.findMany({ where: seeOwners ? {} : { slug: { not: 'owner' } }, orderBy: { id: 'asc' } }),
     db.college.findMany(),
     db.invite.findMany({ where: { status: { in: ['Pending', 'Revoked'] } }, include: { role: true }, orderBy: { created_at: 'desc' }, take: 30 }),
     editable ? db.employee.findMany({ where: { user_id: null, status: 'Active' }, orderBy: { full_name: 'asc' }, take: 100 }) : [],
@@ -37,8 +40,8 @@ export default async function Team({ searchParams }: { searchParams: Promise<{ q
     editable ? db.studentGuardian.findMany({ where: { parent_user_id: null }, include: { student: true }, orderBy: { name: 'asc' }, take: 100 }) : [],
   ]);
   const [total, active, locked, expiring, pending] = await Promise.all([
-    db.user.count(), db.user.count({ where: { status: 'Active' } }), db.user.count({ where: { locked_until: { gt: now } } }),
-    db.user.count({ where: { access_expires_at: { lte: soon, gt: now } } }), db.invite.count({ where: { status: 'Pending', expires_at: { gt: now } } }),
+    db.user.count({ where: hideOwner }), db.user.count({ where: { status: 'Active', ...hideOwner } }), db.user.count({ where: { locked_until: { gt: now }, ...hideOwner } }),
+    db.user.count({ where: { access_expires_at: { lte: soon, gt: now }, ...hideOwner } }), db.invite.count({ where: { status: 'Pending', expires_at: { gt: now } } }),
   ]);
   const assignable = roles; // server re-checks privileged roles on submit
 

@@ -7,7 +7,8 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { run, runPublic, audit, UserError, type ActionState } from '@/lib/action';
-import { createSession, homeFor, isAdmin, permsForRole, type SessionUser } from '@/lib/auth';
+import { createSession, homeFor, isAdmin, isOwner, permsForRole, type SessionUser } from '@/lib/auth';
+import { assertStaffCapacity, getLicense } from '@/lib/license';
 import { checkPassword, generatePassword, getPolicy } from '@/lib/policy';
 import { parse, str, optStr, optEmail, optDate, oneOf, int, optInt, bool, email } from '@/lib/validators';
 
@@ -23,9 +24,10 @@ async function origin() {
 async function assertCanAssign(actor: SessionUser, roleId: number) {
   const role = await db.role.findUnique({ where: { id: roleId }, include: { rolePermissions: { include: { permission: true } } } });
   if (!role) throw new UserError('That role no longer exists.');
+  if (role.slug === 'owner' && !isOwner(actor)) throw new UserError('Only the software owner can assign that role.');
   if (!isAdmin(actor)) {
     const powerful = role.slug === 'super_admin' || role.rolePermissions.some((p) => ['team:edit', 'access:edit', 'settings:edit'].includes(p.permission.slug));
-    if (powerful) throw new UserError('Only a Super Administrator can assign that role.');
+    if (powerful) throw new UserError('Only a College Administrator can assign that role.');
   }
   return role;
 }
@@ -33,6 +35,7 @@ async function assertCanAssign(actor: SessionUser, roleId: number) {
 async function createUserRecord(opts: { name: string; email: string; phone?: string; roleId: number; collegeId?: number; password: string; mustChange: boolean; accessExpires?: Date | null }) {
   const email = norm(opts.email);
   if (await db.user.findUnique({ where: { email } })) throw new UserError(`${email} already has a login.`);
+  await assertStaffCapacity((await db.role.findUnique({ where: { id: opts.roleId }, select: { slug: true } }))?.slug);
   return db.user.create({
     data: {
       name: opts.name.trim(), email, phone: opts.phone, role_id: opts.roleId, college_id: opts.collegeId,
@@ -136,7 +139,7 @@ export async function bulkImport(_p: ActionState, fd: FormData): Promise<ActionS
       if (await db.user.findUnique({ where: { email: e } })) { fail('Already has a login'); continue; }
       const role = roleText ? roles.find((r) => r.slug === roleText.toLowerCase().replace(/\s+/g, '_') || r.name.toLowerCase() === roleText.toLowerCase()) : roles.find((r) => r.id === d.default_role_id);
       if (!role) { fail(`Unknown role "${roleText}"`); continue; }
-      try { await assertCanAssign(actor, role.id); } catch (err) { fail((err as Error).message); continue; }
+      try { await assertCanAssign(actor, role.id); await assertStaffCapacity(role.slug); } catch (err) { fail((err as Error).message); continue; }
       const college = collegeText ? colleges.find((c) => c.code.toLowerCase() === collegeText.toLowerCase() || c.name.toLowerCase() === collegeText.toLowerCase()) : undefined;
       const password = generatePassword();
       await createUserRecord({ name, email: e, phone: phone || undefined, roleId: role.id, collegeId: college?.id, password, mustChange: d.must_change });
@@ -189,7 +192,7 @@ async function guardLastAdmin(userId: number, willBeAdmin: boolean, willBeActive
   const target = await db.user.findUniqueOrThrow({ where: { id: userId }, include: { role: true } });
   if (target.role?.slug === 'super_admin' && (!willBeAdmin || !willBeActive)) {
     const others = await db.user.count({ where: { id: { not: userId }, status: 'Active', role: { slug: 'super_admin' } } });
-    if (others === 0) throw new UserError('At least one active Super Administrator must remain.');
+    if (others === 0) throw new UserError('At least one active College Administrator must remain.');
   }
   return target;
 }
@@ -198,7 +201,8 @@ export async function updateMember(_p: ActionState, fd: FormData): Promise<Actio
   return run(G, async (actor) => {
     const d = parse(z.object({ id: int(1), name: str(), phone: optStr(20), role_id: int(1), status: oneOf(['Active', 'Inactive']), access_expires_at: optDate() }), fd);
     const target = await db.user.findUniqueOrThrow({ where: { id: d.id }, include: { role: true } });
-    if (target.role?.slug === 'super_admin' && !isAdmin(actor)) throw new UserError('Only a Super Administrator can change another Super Administrator.');
+    if (target.role?.slug === 'owner' && !isOwner(actor)) throw new UserError('Only the software owner can change an owner account.');
+    if (target.role?.slug === 'super_admin' && !isAdmin(actor)) throw new UserError('Only a College Administrator can change another College Administrator.');
     const newRole = await assertCanAssign(actor, d.role_id);
     if (d.id === actor.id && (d.status !== 'Active' || newRole.id !== actor.role?.id)) throw new UserError("You can't deactivate yourself or change your own role.");
     await guardLastAdmin(d.id, newRole.slug === 'super_admin', d.status === 'Active');
@@ -212,7 +216,8 @@ export async function resetMemberPassword(_p: ActionState, fd: FormData): Promis
   return run(G, async (actor) => {
     const d = parse(z.object({ id: int(1) }), fd);
     const target = await db.user.findUniqueOrThrow({ where: { id: d.id }, include: { role: true } });
-    if (target.role?.slug === 'super_admin' && !isAdmin(actor)) throw new UserError('Only a Super Administrator can reset another Super Administrator.');
+    if (target.role?.slug === 'owner' && !isOwner(actor)) throw new UserError('Only the software owner can reset an owner account.');
+    if (target.role?.slug === 'super_admin' && !isAdmin(actor)) throw new UserError('Only a College Administrator can reset another College Administrator.');
     const password = generatePassword();
     await db.user.update({ where: { id: d.id }, data: { password: bcrypt.hashSync(password, 10), must_change_password: true, password_changed_at: new Date(), failed_attempts: 0, locked_until: null } });
     await audit(actor, 'PASSWORD_RESET', 'Team', `Reset password for ${target.email}`);
@@ -223,6 +228,8 @@ export async function resetMemberPassword(_p: ActionState, fd: FormData): Promis
 export async function unlockMember(_p: ActionState, fd: FormData): Promise<ActionState> {
   return run(G, async (actor) => {
     const d = parse(z.object({ id: int(1) }), fd);
+    const target = await db.user.findUniqueOrThrow({ where: { id: d.id }, include: { role: true } });
+    if (target.role?.slug === 'owner' && !isOwner(actor)) throw new UserError('Only the software owner can change an owner account.');
     const t = await db.user.update({ where: { id: d.id }, data: { failed_attempts: 0, locked_until: null } });
     await audit(actor, 'ACCOUNT_UNLOCKED', 'Team', `Unlocked ${t.email}`);
     return `${t.name} can sign in again.`;
@@ -247,7 +254,8 @@ export async function acceptInvite(_p: ActionState, fd: FormData): Promise<Actio
     await db.auditLog.create({ data: { user_id: u.id, action: 'INVITE_ACCEPTED', module: 'Team', description: `${u.email} joined as ${inv.role.name} via invite` } });
     await createSession(u.id, { role: { id: inv.role.id, slug: inv.role.slug, name: inv.role.name }, hours: policy.session_hours });
     const perms = new Set(await permsForRole(inv.role.id));
-    target = homeFor({ role: inv.role, perms });
+    const lic = await getLicense();
+    target = homeFor({ role: inv.role, perms, enabled: lic.modules ? new Set(lic.modules) : null });
   });
   if (res?.ok) redirect(target);
   return res;

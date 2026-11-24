@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { run, UserError, type ActionState } from '@/lib/action';
 import { parse, str, optStr, optDate, oneOf, int, optInt, email } from '@/lib/validators';
 import { saveUpload } from '@/lib/upload';
+import { assertStudentCapacity } from '@/lib/license';
 import { todayDate } from '@/lib/format';
 
 const pad = (n: number, w: number) => String(n).padStart(w, '0');
@@ -23,6 +24,7 @@ export async function enrollStudent(_p: ActionState, fd: FormData): Promise<Acti
       fd,
     );
     if (await db.student.findUnique({ where: { email: d.email } })) throw new UserError('A student with this email already exists.');
+    await assertStudentCapacity();
     const role = await db.role.findUnique({ where: { slug: 'student' } });
     const user = (await db.user.findUnique({ where: { email: d.email } })) ?? (await db.user.create({
       data: { name: d.full_name, email: d.email, password: initialPasswordHash(), role_id: role?.id, college_id: d.college_id, phone: d.phone },

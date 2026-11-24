@@ -15,7 +15,7 @@ export async function saveRolePermissions(_p: ActionState, fd: FormData): Promis
   return run(G, async (actor) => {
     const d = parse(z.object({ role_id: int(1) }), fd);
     const role = await db.role.findUniqueOrThrow({ where: { id: d.role_id } });
-    if (role.slug === 'super_admin') throw new UserError('The Super Administrator role always has full access.');
+    if (role.slug === 'super_admin') throw new UserError('The College Administrator role always has full access.');
     const wanted = new Set(fd.getAll('perm').map(String));
     // edit implies view; ignore anything that isn't a real module permission
     const final = new Set<string>();
@@ -26,7 +26,7 @@ export async function saveRolePermissions(_p: ActionState, fd: FormData): Promis
     // Only super admins may hand out the power to manage people / roles / settings.
     if (actor.role?.slug !== 'super_admin') {
       const before = new Set((await db.rolePermission.findMany({ where: { role_id: role.id }, include: { permission: true } })).map((r) => r.permission.slug));
-      for (const s of ['team:edit', 'access:edit', 'settings:edit']) if (final.has(s) && !before.has(s)) throw new UserError('Only a Super Administrator can grant that permission.');
+      for (const s of ['team:edit', 'access:edit', 'settings:edit']) if (final.has(s) && !before.has(s)) throw new UserError('Only a College Administrator can grant that permission.');
     }
     const perms = await db.permission.findMany({ where: { slug: { in: [...final] } } });
     await db.$transaction([
@@ -62,7 +62,7 @@ export async function updateRoleInfo(_p: ActionState, fd: FormData): Promise<Act
   return run(G, async (actor) => {
     const d = parse(z.object({ role_id: int(1), name: str(80), description: optStr(255) }), fd);
     const role = await db.role.findUniqueOrThrow({ where: { id: d.role_id } });
-    if (role.slug === 'super_admin') throw new UserError('The Super Administrator role cannot be edited.');
+    if (role.slug === 'super_admin') throw new UserError('The College Administrator role cannot be edited.');
     await db.role.update({ where: { id: role.id }, data: { name: d.name, description: d.description ?? null } });
     await audit(actor, 'ROLE_UPDATED', 'Access', `Renamed ${role.name} → ${d.name}`);
     return 'Role details saved.';

@@ -43,7 +43,8 @@ const view = (...k: ModuleKey[]) => k.map((x) => [x, 'view'] as const);
 export type DefaultRole = { slug: string; name: string; description: string; system: boolean; grants: (readonly [ModuleKey, Level])[] };
 
 export const DEFAULT_ROLES: DefaultRole[] = [
-  { slug: 'super_admin', name: 'Super Administrator', description: 'Full ERP access across all campuses and modules', system: true, grants: [] },
+  { slug: 'owner', name: 'Software Owner', description: 'Platform owner: controls modules, limits and validity for this institution', system: true, grants: [] },
+  { slug: 'super_admin', name: 'College Administrator', description: 'Runs the institution: manages team, roles and every module the owner has enabled', system: true, grants: [] },
   { slug: 'faculty', name: 'Faculty / Professor', description: 'Teaching, attendance, marks entry, LMS and leave', system: true,
     grants: [...edit('timetable', 'attendance', 'exams', 'lms', 'library')] },
   { slug: 'student', name: 'Student', description: 'Student portal, attendance, results, fees and LMS', system: true, grants: [] },
@@ -84,3 +85,21 @@ export const DEMO_USERS: { email: string; name: string; role: string }[] = [
   { email: 'hr@college.edu.in', name: 'Lakshmi Iyer (HR)', role: 'hr_manager' },
   { email: 'auditor@college.edu.in', name: 'CA Vivek Sharma (Auditor)', role: 'auditor' },
 ];
+
+/** Starting points for the owner when switching modules on for an institution. */
+export const PRESETS: Record<string, { label: string; hint: string; modules: ModuleKey[] }> = {
+  all: { label: 'Everything', hint: 'Every module', modules: MODULE_KEYS },
+  college: { label: 'College / University', hint: 'Full higher-education suite', modules: MODULE_KEYS },
+  pu_college: {
+    label: 'PU / Junior college', hint: 'Admissions, academics, fees, transport, hostel',
+    modules: ['dashboard', 'admissions', 'enquiries', 'students', 'academics', 'timetable', 'attendance', 'exams', 'fees', 'transport', 'hostel', 'library', 'certificates', 'communication', 'events', 'team', 'access', 'settings'],
+  },
+  school: {
+    label: 'School', hint: 'Classes, fees, transport, parents',
+    modules: ['dashboard', 'admissions', 'enquiries', 'students', 'academics', 'timetable', 'attendance', 'exams', 'fees', 'transport', 'hostel', 'library', 'certificates', 'grievances', 'communication', 'events', 'team', 'access', 'settings'],
+  },
+  coaching: {
+    label: 'Coaching / Tutorial', hint: 'Batches, fees, attendance, tests',
+    modules: ['dashboard', 'enquiries', 'students', 'timetable', 'attendance', 'exams', 'fees', 'communication', 'lms', 'team', 'access', 'settings'],
+  },
+};

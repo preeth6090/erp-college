@@ -1,5 +1,5 @@
 import {
-  Award, BadgeCheck, BedDouble, BookOpen, Briefcase, Bus, CalendarCheck, CalendarDays, ClipboardCheck, FileText, FlaskConical, GraduationCap,
+  Award, BadgeCheck, Crown, BedDouble, BookOpen, Briefcase, Bus, CalendarCheck, CalendarDays, ClipboardCheck, FileText, FlaskConical, GraduationCap,
   Headset, KeyRound, Landmark, LayoutDashboard, Megaphone, MonitorPlay, Package, PartyPopper, School, Settings, ShieldAlert, UserCog, UserRound,
   Users, Wallet, Banknote, type LucideIcon,
 } from 'lucide-react';
@@ -9,7 +9,7 @@ const MAP: Record<string, LucideIcon> = {
   attendance: CalendarCheck, exams: ClipboardCheck, library: BookOpen, fees: Wallet, finance: Landmark, hr: Users, payroll: Banknote,
   procurement: Package, hostel: BedDouble, transport: Bus, lms: MonitorPlay, placements: Briefcase, scholarships: Award, certificates: BadgeCheck,
   grievances: ShieldAlert, events: PartyPopper, accreditation: FlaskConical, communication: Megaphone, team: UserCog, access: KeyRound,
-  settings: Settings, portal: UserRound,
+  settings: Settings, portal: UserRound, owner: Crown,
 };
 
 /** Icon for a module key (or a portal). Falls back to a neutral icon. */

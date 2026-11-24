@@ -28,7 +28,7 @@ export function TeamAdd({ roles, colleges, employees, students, guardians, invit
   const [csv, setCsv] = useState('');
   const [kind, setKind] = useState<'employee' | 'student' | 'guardian'>('employee');
   const [q, setQ] = useState('');
-  // Super Administrator goes last and nothing is pre-selected, so an admin can't be created by accident
+  // College Administrator goes last and nothing is pre-selected, so an admin can't be created by accident
   const ordered = [...roles].sort((a, b) => Number(a.slug === 'super_admin') - Number(b.slug === 'super_admin'));
   const roleOpts = ordered.map((r) => ({ value: r.id, label: r.name }));
   const collegeOpts = colleges.map((c) => ({ value: c.id, label: c.name }));
