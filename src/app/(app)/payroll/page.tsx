@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Card, LinkButton, PageHeader, Table, Td, inputCls } from '@/components/ui';
 import { processPayroll } from '@/actions/hr';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Payroll Management' };
 export const dynamic = 'force-dynamic';
 
 export default async function Payroll({ searchParams }: { searchParams: Promise<{ month?: string; year?: string }> }) {
-  await requireRole('super_admin', 'accountant');
+  await requireModule('payroll');
   const sp = await searchParams;
   const now = new Date();
   const month = Number(sp.month) || now.getMonth() + 1;

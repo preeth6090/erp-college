@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { BarChart, DoughnutChart, LineChart, PieChart } from '@/components/Charts';
 import { ActionItem, Funnel, Kpi, Panel, Progress } from '@/components/dash';
 import { Badge } from '@/components/ui';
@@ -93,7 +93,7 @@ const loadDashboard = unstable_cache(async () => {
 }, ['dashboard-v2'], { revalidate: 60 });
 
 export default async function Dashboard() {
-  const user = await requireRole('super_admin');
+  const user = await requireModule('dashboard');
   const {
     totalStudents,
     newStudents30,

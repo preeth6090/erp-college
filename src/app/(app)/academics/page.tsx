@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, Checkbox, FormGrid, Input, PageHeader, Select, Table, Td } from '@/components/ui';
 import { storeCalendar, storeCourse, storeDepartment, storeSubject } from '@/actions/academics';
@@ -10,7 +10,7 @@ export const metadata = { title: 'Course & Academic Management' };
 export const dynamic = 'force-dynamic';
 
 export default async function Academics() {
-  await requireRole('super_admin');
+  await requireModule('academics');
   const [departments, courses, sessions, calendars, colleges] = await Promise.all([
     db.department.findMany(),
     db.course.findMany({ include: { department: true } }),

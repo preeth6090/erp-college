@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, Checkbox, FormGrid, Input, PageHeader, Select, Table, Td, Textarea } from '@/components/ui';
 import { storeAnnouncement } from '@/actions/community';
@@ -8,7 +8,7 @@ export const metadata = { title: 'Communication & Alerts' };
 export const dynamic = 'force-dynamic';
 
 export default async function Communication() {
-  await requireRole('super_admin');
+  await requireModule('communication');
   const [announcements, logs] = await Promise.all([
     db.announcement.findMany({ orderBy: { created_at: 'desc' } }),
     db.notificationLog.findMany({ orderBy: { created_at: 'desc' }, take: 50 }),

@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, Input, PageHeader, Select, Table, Td } from '@/components/ui';
 import { allocateTransport } from '@/actions/facilities';
@@ -12,7 +12,7 @@ function stops(json?: string | null): string[] {
 }
 
 export default async function Transport() {
-  await requireRole('super_admin');
+  await requireModule('transport');
   const [routes, allocations, students] = await Promise.all([
     db.transportRoute.findMany({ include: { transportVehicle: true } }),
     db.transportAllocation.findMany({ include: { transportRoute: true, student: true }, orderBy: { created_at: 'desc' } }),

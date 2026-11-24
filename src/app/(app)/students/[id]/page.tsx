@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, Field, Input, LinkButton, PageHeader, Select, Textarea, inputCls } from '@/components/ui';
 import { updateStudentStatus, uploadStudentDocument } from '@/actions/students';
@@ -9,7 +9,7 @@ import { inr } from '@/lib/format';
 export const dynamic = 'force-dynamic';
 
 export default async function StudentProfile({ params }: { params: Promise<{ id: string }> }) {
-  await requireRole('super_admin');
+  await requireModule('students');
   const { id } = await params;
   const s = await db.student.findUnique({
     where: { id: Number(id) },

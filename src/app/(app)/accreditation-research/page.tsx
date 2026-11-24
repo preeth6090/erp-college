@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select } from '@/components/ui';
 import { storeAccreditation, storeResearch } from '@/actions/community';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Accreditation & Research' };
 export const dynamic = 'force-dynamic';
 
 export default async function AccreditationResearch() {
-  await requireRole('super_admin');
+  await requireModule('accreditation');
   const [acc, research] = await Promise.all([
     db.accreditationRecord.findMany({ orderBy: { created_at: 'desc' } }),
     db.researchRecord.findMany({ orderBy: { created_at: 'desc' } }),

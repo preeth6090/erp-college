@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireAccess } from '@/lib/auth';
 import { PrintButton } from '@/components/forms';
 import { Signature, Table, Td } from '@/components/ui';
 import { fmtDate, hhmm } from '@/lib/format';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Admit Card' };
 
 export default async function AdmitCard({ params }: { params: Promise<{ id: string; studentId: string }> }) {
   const { id, studentId } = await params;
-  const user = await requireRole('super_admin', 'faculty', 'student');
+  const user = await requireAccess({ module: 'exams', roles: ['faculty', 'student'] });
   const [exam, s] = await Promise.all([
     db.exam.findUnique({ where: { id: Number(id) }, include: { course: true, examSchedules: { include: { subject: true }, orderBy: { exam_date: 'asc' } } } }),
     db.student.findUnique({ where: { id: Number(studentId) }, include: { college: true } }),

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireAccess } from '@/lib/auth';
 import { PrintButton } from '@/components/forms';
 import { Signature } from '@/components/ui';
 import { inr, monthName } from '@/lib/format';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Payslip' };
 
 export default async function Payslip({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requireRole('super_admin', 'accountant', 'faculty');
+  const user = await requireAccess({ module: 'payroll', roles: ['faculty'] });
   const p = await db.payroll.findUnique({ where: { id: Number(id) }, include: { employee: { include: { department: true, college: true } } } });
   if (!p) notFound();
   if (user.role?.slug === 'faculty' && p.employee.user_id !== user.id) notFound();

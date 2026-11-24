@@ -6,13 +6,12 @@ import { run, UserError, type ActionState } from '@/lib/action';
 import { parse, str, optStr, date, oneOf, int, optInt, num, optNum } from '@/lib/validators';
 import { inr } from '@/lib/format';
 
-const FIN = ['super_admin', 'accountant'] as const;
 const year = () => new Date().getFullYear();
 const rand = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) + a;
 const fee = () => z.preprocess((v) => (v === '' || v == null ? 0 : v), num(0));
 
 export async function storeFeeStructure(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run([...FIN], async () => {
+  return run({ module: 'fees' }, async () => {
     const d = parse(
       z.object({ course_id: int(1), semester: int(1, 12), category: oneOf(['All', 'General', 'OBC', 'SC', 'ST', 'EWS']), admission_fee: fee(), tuition_fee: fee(), exam_fee: fee(), library_fee: fee(), lab_fee: fee(), hostel_fee: fee(), transport_fee: fee(), misc_fee: fee() }),
       fd,
@@ -24,7 +23,7 @@ export async function storeFeeStructure(_p: ActionState, fd: FormData): Promise<
 }
 
 export async function collectFee(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run([...FIN], async () => {
+  return run({ module: 'fees' }, async () => {
     const d = parse(z.object({ id: int(1), amount: num(1), payment_mode: oneOf(['UPI', 'Card', 'NetBanking', 'Cash', 'Cheque', 'DD']), transaction_ref: optStr(80), remarks: optStr() }), fd);
     const acc = await db.studentFeeAccount.findUniqueOrThrow({ where: { id: d.id } });
     if (d.amount > Math.max(1, acc.balance_amount)) throw new UserError(`Amount cannot exceed the outstanding balance (${inr(acc.balance_amount)}).`);
@@ -42,7 +41,7 @@ export async function collectFee(_p: ActionState, fd: FormData): Promise<ActionS
 }
 
 export async function storeVoucher(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run([...FIN], async (user) => {
+  return run({ module: 'finance' }, async (user) => {
     const d = parse(
       z.object({ voucher_type: oneOf(['Payment', 'Receipt', 'Contra', 'Journal']), voucher_date: date(), debit_account_id: int(1), credit_account_id: int(1), amount: num(1), gst_amount: fee(), tds_amount: fee(), department_id: optInt(1), narration: str(5000) }),
       fd,
@@ -65,7 +64,7 @@ export async function storeVoucher(_p: ActionState, fd: FormData): Promise<Actio
 }
 
 export async function storeRequisition(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run([...FIN], async (user) => {
+  return run({ module: 'procurement' }, async (user) => {
     const d = parse(z.object({ department_id: int(1), item_description: str(255), quantity: int(1), estimated_cost: num(1) }), fd);
     await db.purchaseRequisition.create({ data: { ...d, req_no: `PR-${year()}-${rand(100, 999)}`, requested_by: user.id } });
     return 'Purchase requisition submitted.';
@@ -73,7 +72,7 @@ export async function storeRequisition(_p: ActionState, fd: FormData): Promise<A
 }
 
 export async function storePurchaseOrder(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run([...FIN], async () => {
+  return run({ module: 'procurement' }, async () => {
     const d = parse(z.object({ vendor_id: int(1), purchase_requisition_id: optInt(1), order_date: date(), total_amount: num(1) }), fd);
     const po_no = `PO-${year()}-${rand(100, 999)}`;
     await db.purchaseOrder.create({ data: { ...d, po_no } });

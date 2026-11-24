@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Card, Input, LinkButton, PageHeader, Select, Table, Td } from '@/components/ui';
 import { issueCertificate } from '@/actions/career';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Certificates & Document Management' };
 export const dynamic = 'force-dynamic';
 
 export default async function Certificates() {
-  await requireRole('super_admin');
+  await requireModule('certificates');
   const [certs, students] = await Promise.all([db.certificate.findMany({ include: { student: true }, orderBy: { created_at: 'desc' } }), db.student.findMany()]);
   return (
     <div className="space-y-4">

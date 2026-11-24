@@ -10,7 +10,7 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 const rand = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) + a;
 
 export async function storeEmployee(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'hr' }, async () => {
     const d = parse(
       z.object({
         college_id: int(1), department_id: optInt(1), full_name: str(), email: z.string().trim().email(), phone: str(20),
@@ -37,7 +37,7 @@ export async function storeEmployee(_p: ActionState, fd: FormData): Promise<Acti
 }
 
 export async function updateLeave(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async (user) => {
+  return run({ module: 'hr' }, async (user) => {
     const d = parse(z.object({ id: int(1), status: oneOf(['Approved', 'Rejected']) }), fd);
     await db.employeeLeave.update({ where: { id: d.id }, data: { status: d.status, approved_by: user.id } });
     return `Leave request ${d.status}.`;
@@ -45,7 +45,7 @@ export async function updateLeave(_p: ActionState, fd: FormData): Promise<Action
 }
 
 export async function processPayroll(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'accountant'], async () => {
+  return run({ module: 'payroll' }, async () => {
     const d = parse(z.object({ month: int(1, 12), year: int(2000, 2100) }), fd);
     const employees = await db.employee.findMany({ where: { status: 'Active' }, include: { salaryStructures: true } });
     for (const emp of employees) {

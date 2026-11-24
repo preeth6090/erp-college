@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, LinkButton, PageHeader, Table, Td, inputCls } from '@/components/ui';
 import { generateMeritList, updateApplicationStatus } from '@/actions/admissions';
@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 const STATUSES = ['Submitted', 'Verified', 'Merit Listed', 'Waiting List', 'Approved', 'Rejected', 'Confirmed', 'Cancelled'];
 
 export default async function Admissions({ searchParams }: { searchParams: Promise<{ status?: string; course_id?: string }> }) {
-  await requireRole('super_admin');
+  await requireModule('admissions');
   const { status, course_id } = await searchParams;
   const [apps, courses] = await Promise.all([
     db.admissionApplication.findMany({

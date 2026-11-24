@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select, Table, Td } from '@/components/ui';
 import { storePurchaseOrder, storeRequisition } from '@/actions/finance';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Procurement & Inventory' };
 export const dynamic = 'force-dynamic';
 
 export default async function Procurement() {
-  await requireRole('super_admin', 'accountant');
+  await requireModule('procurement');
   const [vendors, requisitions, orders, inventory, departments] = await Promise.all([
     db.vendor.findMany(),
     db.purchaseRequisition.findMany({ orderBy: { created_at: 'desc' } }),

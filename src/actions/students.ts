@@ -11,7 +11,7 @@ import { todayDate } from '@/lib/format';
 const pad = (n: number, w: number) => String(n).padStart(w, '0');
 
 export async function enrollStudent(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'students' }, async () => {
     const d = parse(
       z.object({
         college_id: int(1), department_id: int(1), course_id: int(1), current_semester: int(1, 10), class_section_id: optInt(1),
@@ -43,7 +43,7 @@ export async function enrollStudent(_p: ActionState, fd: FormData): Promise<Acti
 }
 
 export async function updateStudentStatus(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'students' }, async () => {
     const d = parse(z.object({ id: int(1), status: oneOf(['Active', 'Passed Out', 'Suspended', 'Withdrawn']), current_semester: optInt(1, 10), transfer_migration_notes: optStr() }), fd);
     const { id, ...data } = d;
     await db.student.update({ where: { id }, data });
@@ -52,7 +52,7 @@ export async function updateStudentStatus(_p: ActionState, fd: FormData): Promis
 }
 
 export async function uploadStudentDocument(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'students' }, async () => {
     const d = parse(z.object({ id: int(1), document_type: str(80) }), fd);
     const path = await saveUpload(fd.get('document_file'), 'students/documents', 5 * 1024 * 1024);
     if (!path) throw new UserError('Please choose a file to upload.');

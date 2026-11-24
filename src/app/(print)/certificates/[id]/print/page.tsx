@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import QRCode from 'qrcode';
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireAccess } from '@/lib/auth';
 import { PrintButton } from '@/components/forms';
 import { Signature } from '@/components/ui';
 import { fmtDate } from '@/lib/format';
@@ -11,7 +11,7 @@ export const metadata = { title: 'Certificate' };
 
 export default async function PrintCertificate({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requireRole('super_admin', 'student', 'parent');
+  const user = await requireAccess({ module: 'certificates', roles: ['student', 'parent'] });
   const c = await db.certificate.findUnique({ where: { id: Number(id) }, include: { student: { include: { college: true, course: true, department: true, studentGuardians: true } } } });
   if (!c) notFound();
   if (user.role?.slug === 'student' && c.student.user_id !== user.id) notFound();

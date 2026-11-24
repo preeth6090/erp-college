@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select } from '@/components/ui';
 import { allocateHostel, storeHostelActivity } from '@/actions/facilities';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Hostel Management' };
 export const dynamic = 'force-dynamic';
 
 export default async function Hostel() {
-  await requireRole('super_admin');
+  await requireModule('hostel');
   const [hostels, rooms, allocations, activities, students] = await Promise.all([
     db.hostel.findMany({ include: { warden: true } }),
     db.hostelRoom.findMany({ include: { hostel: true } }),

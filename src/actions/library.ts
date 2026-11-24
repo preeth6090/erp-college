@@ -6,10 +6,9 @@ import { run, UserError, type ActionState } from '@/lib/action';
 import { parse, str, optStr, oneOf, int } from '@/lib/validators';
 import { addDays, todayDate, fmtDate } from '@/lib/format';
 
-const ROLES = ['super_admin', 'librarian', 'faculty'] as const;
 
 export async function storeBook(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run([...ROLES], async () => {
+  return run({ module: 'library' }, async () => {
     const d = parse(
       z.object({ isbn: optStr(30), accession_no: str(30), title: str(), author: str(), publisher: optStr(255), subject_category: str(80), rack_location: optStr(40), book_type: oneOf(['Regular', 'Reference', 'Journal', 'Magazine', 'E-Book']), ebook_url: optStr(255), total_copies: int(1, 500) }),
       fd,
@@ -20,7 +19,7 @@ export async function storeBook(_p: ActionState, fd: FormData): Promise<ActionSt
 }
 
 export async function issueBook(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run([...ROLES], async () => {
+  return run({ module: 'library' }, async () => {
     const d = parse(z.object({ library_book_id: int(1), user_id: int(1), due_days: int(1, 90) }), fd);
     const book = await db.libraryBook.findUniqueOrThrow({ where: { id: d.library_book_id } });
     if (book.available_copies < 1) throw new UserError('No copies available for issue.');
@@ -35,7 +34,7 @@ export async function issueBook(_p: ActionState, fd: FormData): Promise<ActionSt
 }
 
 export async function returnBook(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run([...ROLES], async () => {
+  return run({ module: 'library' }, async () => {
     const d = parse(z.object({ id: int(1) }), fd);
     const issue = await db.libraryIssue.findUniqueOrThrow({ where: { id: d.id } });
     if (issue.status === 'Returned') return 'Already returned.';
@@ -51,7 +50,7 @@ export async function returnBook(_p: ActionState, fd: FormData): Promise<ActionS
 }
 
 export async function renewBook(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run([...ROLES], async () => {
+  return run({ module: 'library' }, async () => {
     const d = parse(z.object({ id: int(1) }), fd);
     const issue = await db.libraryIssue.findUniqueOrThrow({ where: { id: d.id } });
     const newDue = addDays(issue.due_date, 14);

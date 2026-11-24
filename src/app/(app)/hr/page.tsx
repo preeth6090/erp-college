@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select, Table, Td } from '@/components/ui';
 import { storeEmployee, updateLeave } from '@/actions/hr';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Faculty & Staff HR' };
 export const dynamic = 'force-dynamic';
 
 export default async function HR() {
-  await requireRole('super_admin');
+  await requireModule('hr');
   const [employees, leaves, departments, colleges] = await Promise.all([
     db.employee.findMany({ include: { department: true }, orderBy: { created_at: 'desc' } }),
     db.employeeLeave.findMany({ include: { employee: true }, orderBy: { created_at: 'desc' } }),

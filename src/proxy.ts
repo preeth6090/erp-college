@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // Lightweight gate: anything outside the public routes needs a session cookie.
 // Real verification + role checks happen in getUser()/requireRole() on the server.
-const PUBLIC = ['/login', '/apply', '/track-application', '/verify-certificate', '/forbidden'];
+const PUBLIC = ['/login', '/apply', '/track-application', '/verify-certificate', '/forbidden', '/invite'];
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;

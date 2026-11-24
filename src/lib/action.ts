@@ -1,10 +1,11 @@
 import 'server-only';
 import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
-import { getUser, hasRole, type Role, type SessionUser } from './auth';
+import { can, getUser, hasRole, type Role, type SessionUser } from './auth';
+import type { Level, ModuleKey } from './modules';
 import { db } from './db';
 
-export type ActionState = { ok: boolean; message?: string; errors?: string[]; ts: number } | null;
+export type ActionState = { ok: boolean; message?: string; errors?: string[]; data?: unknown; ts: number } | null;
 
 /** Throw to show a friendly message to the user. */
 export class UserError extends Error {}
@@ -13,14 +14,21 @@ export class UserError extends Error {}
  * Wraps a server action body: checks role, validates, reports success/failure
  * as state for <ActionForm>, and refreshes cached pages.
  */
-export async function run(roles: Role[] | null, fn: (user: SessionUser) => Promise<string | void>): Promise<ActionState> {
+export type Guard = Role[] | null | { module: ModuleKey; level?: Level };
+
+export type Outcome = string | void | { message: string; data?: unknown };
+
+export async function run(guard: Guard, fn: (user: SessionUser) => Promise<Outcome>): Promise<ActionState> {
   try {
     const user = await getUser();
     if (!user) throw new UserError('Your session has expired. Please sign in again.');
-    if (roles && roles.length && !hasRole(user, roles)) throw new UserError('You do not have permission to perform this action.');
-    const message = await fn(user);
+    if (user.must_change_password) throw new UserError('Please change your password first.');
+    if (Array.isArray(guard) && guard.length && !hasRole(user, guard)) throw new UserError('You do not have permission to perform this action.');
+    if (guard && !Array.isArray(guard) && !can(user, guard.module, guard.level ?? 'edit')) throw new UserError('You do not have permission to perform this action.');
+    const out = await fn(user);
     revalidatePath('/', 'layout');
-    return { ok: true, message: message || 'Saved.', ts: Date.now() };
+    if (out && typeof out === 'object') return { ok: true, message: out.message, data: out.data, ts: Date.now() };
+    return { ok: true, message: out || 'Saved.', ts: Date.now() };
   } catch (e: any) {
     if (typeof e?.digest === 'string' && e.digest.startsWith('NEXT_')) throw e; // redirect / notFound
     if (e instanceof ZodError) {

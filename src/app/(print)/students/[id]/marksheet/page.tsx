@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireAccess } from '@/lib/auth';
 import { PrintButton } from '@/components/forms';
 import { Signature, Table, Td } from '@/components/ui';
 import { fmtDate } from '@/lib/format';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Marksheet & Transcript' };
 
 export default async function Marksheet({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requireRole('super_admin', 'faculty', 'student', 'parent');
+  const user = await requireAccess({ module: 'exams', roles: ['faculty', 'student', 'parent'] });
   const s = await db.student.findUnique({
     where: { id: Number(id) },
     include: { college: true, course: true, department: true, examMarks: { include: { subject: true }, orderBy: { id: 'asc' } }, studentGuardians: true },

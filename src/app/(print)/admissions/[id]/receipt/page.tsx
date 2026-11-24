@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireAccess } from '@/lib/auth';
 import { PrintButton } from '@/components/forms';
 import { Signature } from '@/components/ui';
 import { inr } from '@/lib/format';
@@ -8,7 +8,7 @@ import { inr } from '@/lib/format';
 export const metadata = { title: 'Admission Receipt' };
 
 export default async function Receipt({ params }: { params: Promise<{ id: string }> }) {
-  await requireRole('super_admin');
+  await requireAccess({ module: 'admissions' });
   const { id } = await params;
   const a = await db.admissionApplication.findUnique({ where: { id: Number(id) }, include: { course: { include: { department: { include: { college: true } } } } } });
   if (!a) notFound();

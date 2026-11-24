@@ -62,7 +62,7 @@ export async function submitPublicApplication(_p: ActionState, fd: FormData): Pr
 }
 
 export async function generateMeritList(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'admissions' }, async () => {
     const courseId = Number(fd.get('course_id')) || undefined;
     const apps = await db.admissionApplication.findMany({
       where: { status: { in: ['Submitted', 'Verified', 'Waiting List'] }, ...(courseId ? { course_id: courseId } : {}) },
@@ -79,7 +79,7 @@ export async function generateMeritList(_p: ActionState, fd: FormData): Promise<
 }
 
 export async function updateApplicationStatus(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'admissions' }, async () => {
     const d = parse(z.object({ id: int(1), status: oneOf(['Verified', 'Merit Listed', 'Waiting List', 'Approved', 'Rejected', 'Confirmed', 'Cancelled']), remarks: optStr() }), fd);
     const app = await db.admissionApplication.findUniqueOrThrow({ where: { id: d.id }, include: { course: { include: { department: true } } } });
     let regNo = app.registration_number;
@@ -121,7 +121,7 @@ export async function updateApplicationStatus(_p: ActionState, fd: FormData): Pr
 }
 
 export async function storeEnquiry(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'enquiries' }, async () => {
     const d = parse(
       z.object({
         student_name: str(), phone: str(20), email: optEmail(),
@@ -136,7 +136,7 @@ export async function storeEnquiry(_p: ActionState, fd: FormData): Promise<Actio
 }
 
 export async function addFollowup(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async (user) => {
+  return run({ module: 'enquiries' }, async (user) => {
     const d = parse(z.object({ id: int(1), notes: str(5000), outcome: optStr(60), status: oneOf(['New', 'Follow-up', 'Converted', 'Lost']), lost_reason: optStr(255), next_followup_date: optDate() }), fd);
     const enq = await db.admissionEnquiry.findUniqueOrThrow({ where: { id: d.id } });
     await db.enquiryFollowup.create({ data: { admission_enquiry_id: enq.id, user_id: user.id, followup_at: new Date(), notes: d.notes, outcome: d.outcome ?? d.status } });
@@ -146,7 +146,7 @@ export async function addFollowup(_p: ActionState, fd: FormData): Promise<Action
 }
 
 export async function bulkNotifyEnquiries(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'enquiries' }, async () => {
     const d = parse(z.object({ channel: oneOf(['Email', 'SMS', 'WhatsApp']), message: str(5000) }), fd);
     const list = await db.admissionEnquiry.findMany({ where: { status: { in: ['New', 'Follow-up'] } } });
     for (const e of list) {

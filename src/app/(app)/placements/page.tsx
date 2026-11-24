@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select, Table, Td, inputCls } from '@/components/ui';
 import { applyDrive, storeDrive, updatePlacementStatus } from '@/actions/career';
@@ -8,7 +8,7 @@ export const metadata = { title: 'Placement & Career' };
 export const dynamic = 'force-dynamic';
 
 export default async function Placements() {
-  await requireRole('super_admin');
+  await requireModule('placements');
   const [companies, drives, applications, students] = await Promise.all([
     db.placementCompany.findMany(),
     db.placementDrive.findMany({ include: { placementCompany: true }, orderBy: { created_at: 'desc' } }),

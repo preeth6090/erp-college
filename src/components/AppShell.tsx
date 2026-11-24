@@ -2,12 +2,15 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import { MODULES } from '@/lib/modules';
 
 /** Responsive frame: fixed sidebar on desktop, slide-out drawer with a hamburger on phones/tablets. */
-export function AppShell({ brand, nav, footer, header, children }: { brand: ReactNode; nav: ReactNode; footer: ReactNode; header: ReactNode; children: ReactNode }) {
+export function AppShell({ brand, nav, footer, header, viewOnly = [], children }: { brand: ReactNode; nav: ReactNode; footer: ReactNode; header: ReactNode; viewOnly?: string[]; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const path = usePathname();
   useEffect(() => setOpen(false), [path]);
+  const current = MODULES.find((m) => path === m.href || path.startsWith(m.href + '/'));
+  const readOnly = !!current && viewOnly.includes(current.key);
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     const esc = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
@@ -36,7 +39,10 @@ export function AppShell({ brand, nav, footer, header, children }: { brand: Reac
           </button>
           <div className="flex min-w-0 flex-1 items-center justify-end gap-2 text-xs sm:gap-4">{header}</div>
         </header>
-        <main className="print-full min-w-0 flex-1 overflow-x-hidden p-3 sm:p-5 lg:p-6">{children}</main>
+        <main data-readonly={readOnly} className="print-full min-w-0 flex-1 overflow-x-hidden p-3 sm:p-5 lg:p-6">
+          {readOnly && <div className="mb-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm text-sky-800">👁️ You have <strong>view-only</strong> access to this module. Ask an administrator if you need to make changes.</div>}
+          {children}
+        </main>
       </div>
     </div>
   );

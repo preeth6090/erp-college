@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, Checkbox, FormGrid, Input, PageHeader, Select } from '@/components/ui';
 import { storeAlumnus, storeEvent } from '@/actions/community';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Campus Events & Alumni' };
 export const dynamic = 'force-dynamic';
 
 export default async function EventsAlumni() {
-  await requireRole('super_admin');
+  await requireModule('events');
   const [events, alumni, courses] = await Promise.all([
     db.campusEvent.findMany({ orderBy: { event_date: 'desc' } }),
     db.alumnus.findMany({ orderBy: { created_at: 'desc' } }),

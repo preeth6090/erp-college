@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select, Textarea, inputCls } from '@/components/ui';
 import { gradeSubmission, storeAssignment, storeDiscussion, storeMaterial } from '@/actions/facilities';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Learning Management System' };
 export const dynamic = 'force-dynamic';
 
 export default async function LMS() {
-  await requireRole('super_admin', 'faculty');
+  await requireModule('lms');
   const [materials, assignments, discussions, subjects] = await Promise.all([
     db.lmsMaterial.findMany({ include: { subject: true }, orderBy: { created_at: 'desc' } }),
     db.lmsAssignment.findMany({ include: { subject: true, lmsSubmissions: { include: { student: true } } }, orderBy: { created_at: 'desc' } }),

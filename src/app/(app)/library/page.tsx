@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select, Table, Td, inputCls } from '@/components/ui';
 import { issueBook, renewBook, returnBook, storeBook } from '@/actions/library';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Library Management' };
 export const dynamic = 'force-dynamic';
 
 export default async function Library({ searchParams }: { searchParams: Promise<{ search?: string }> }) {
-  await requireRole('super_admin', 'librarian', 'faculty');
+  await requireModule('library');
   const { search } = await searchParams;
   const [books, issues, members] = await Promise.all([
     db.libraryBook.findMany({ where: search ? { OR: [{ title: { contains: search, mode: 'insensitive' } }, { author: { contains: search, mode: 'insensitive' } }, { isbn: { contains: search, mode: 'insensitive' } }] } : {}, orderBy: { created_at: 'desc' } }),

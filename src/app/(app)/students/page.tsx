@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, LinkButton, PageHeader, Select, Table, Td, inputCls } from '@/components/ui';
 import { enrollStudent } from '@/actions/students';
@@ -8,7 +8,7 @@ export const metadata = { title: 'Student Information System' };
 export const dynamic = 'force-dynamic';
 
 export default async function Students({ searchParams }: { searchParams: Promise<{ search?: string; course_id?: string; status?: string }> }) {
-  await requireRole('super_admin');
+  await requireModule('students');
   const { search, course_id, status } = await searchParams;
   const [students, courses, departments, colleges] = await Promise.all([
     db.student.findMany({

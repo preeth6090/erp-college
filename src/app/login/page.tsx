@@ -1,13 +1,14 @@
 import { redirect } from 'next/navigation';
-import { getUser, homeForRole } from '@/lib/auth';
+import { getUser, homeFor } from '@/lib/auth';
 import { APP_NAME, CREATOR_LINE } from '@/lib/brand';
+import { getPolicy } from '@/lib/policy';
 import { LoginForm } from './LoginForm';
 
 export const metadata = { title: 'Sign In' };
 
 export default async function LoginPage() {
-  const user = await getUser();
-  if (user) redirect(homeForRole(user.role?.slug));
+  const [user, policy] = await Promise.all([getUser(), getPolicy()]);
+  if (user) redirect(homeFor(user));
   return (
     <div className="flex min-h-dvh flex-col bg-slate-100">
       <header className="bg-slate-900 px-6 py-4 text-white">
@@ -20,7 +21,7 @@ export default async function LoginPage() {
         <div className="mx-auto mt-8 max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <h1 className="text-xl font-bold text-slate-900">Sign in to {APP_NAME}</h1>
           <p className="mb-6 mt-1 text-xs text-slate-500">Authentication is required to access the College Management System.</p>
-          <LoginForm />
+          <LoginForm allowRemember={policy.allow_remember} />
         </div>
       </main>
       <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500">

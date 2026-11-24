@@ -9,7 +9,7 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 const hms = (t: string) => (t.length === 5 ? `${t}:00` : t);
 
 export async function storeDepartment(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'academics' }, async () => {
     const d = parse(z.object({ college_id: int(1), code: str(20), name: str(), hod_name: optStr(255) }), fd);
     await db.department.create({ data: d });
     return 'Department created.';
@@ -17,7 +17,7 @@ export async function storeDepartment(_p: ActionState, fd: FormData): Promise<Ac
 }
 
 export async function storeCourse(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'academics' }, async () => {
     const d = parse(
       z.object({
         department_id: int(1), code: str(20), name: str(), level: oneOf(['Undergraduate', 'Postgraduate', 'Diploma', 'Certificate']),
@@ -32,7 +32,7 @@ export async function storeCourse(_p: ActionState, fd: FormData): Promise<Action
 }
 
 export async function storeSubject(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'academics' }, async () => {
     const d = parse(
       z.object({
         course_id: int(1), code: str(25), name: str(), semester: int(1, 12), credits: num(1, 20),
@@ -47,7 +47,7 @@ export async function storeSubject(_p: ActionState, fd: FormData): Promise<Actio
 }
 
 export async function storeCalendar(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'academics' }, async () => {
     const d = parse(
       z.object({ academic_session_id: int(1), title: str(), event_type: oneOf(['Academic', 'Holiday', 'Examination', 'Cultural', 'Workshop']), start_date: date(), end_date: optDate(), description: optStr() }),
       fd,
@@ -59,7 +59,7 @@ export async function storeCalendar(_p: ActionState, fd: FormData): Promise<Acti
 }
 
 export async function storeSection(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'timetable' }, async () => {
     const d = parse(z.object({ course_id: int(1), semester: int(1, 12), section_name: str(20), room_no: optStr(30), class_teacher_id: optInt(1) }), fd);
     await db.classSection.create({ data: d });
     return 'Class section created.';
@@ -67,7 +67,7 @@ export async function storeSection(_p: ActionState, fd: FormData): Promise<Actio
 }
 
 export async function storeTimetableSlot(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'timetable' }, async () => {
     const d = parse(
       z.object({
         class_section_id: int(1), subject_id: int(1), faculty_id: int(1), substitute_faculty_id: optInt(1),

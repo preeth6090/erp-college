@@ -3,6 +3,7 @@
 //   admin@college.edu.in, faculty@college.edu.in, student@college.edu.in, parent@college.edu.in
 import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { syncRbac } from './rbac';
 
 const prisma = new PrismaClient();
 
@@ -96,23 +97,9 @@ async function main() {
             is_active: true,
         });
 
-        // 3. Roles & Permissions
-        const roles: Record<string, any> = {};
-        for (const [slug, name, desc] of [
-            ['super_admin', 'Super Administrator', 'Full ERP access across all campuses and modules'],
-            ['faculty', 'Faculty / Professor', 'Teaching, attendance, marks entry, LMS and leave'],
-            ['student', 'Student', 'Student portal, attendance, results, fees and LMS'],
-            ['parent', 'Parent / Guardian', 'Parent portal for linked children tracking'],
-            ['accountant', 'Finance & Accounts', 'Fees, vouchers, payroll and procurement'],
-            ['librarian', 'Librarian', 'Library catalog, issue/return and stock verification'],
-        ]) {
-            roles[slug] = await mk('Role', {slug: slug, name: name, description: desc});
-        }
-
-        for (const mod of ['admissions', 'students', 'academics', 'attendance', 'exams', 'library', 'fees', 'finance', 'hr', 'payroll', 'hostel', 'transport', 'lms', 'placement', 'compliance', 'settings']) {
-            const perm = await mk('Permission', {slug: `manage.${mod}`, name: 'Manage ' + ucfirst(mod), module: ucfirst(mod)});
-            await prisma.rolePermission.create({ data: { role_id: roles['super_admin'].id, permission_id: perm.id } });
-        }
+        // 3. Roles & Permissions (module-based RBAC + demo logins for every role)
+        await syncRbac(prisma, { demoUsers: true, password: process.env.SEED_PASSWORD || 'password' });
+        const roles: Record<string, any> = Object.fromEntries((await prisma.role.findMany()).map((r) => [r.slug, r]));
 
         // 4. Demo Users
         const adminUser = await mk('User', {

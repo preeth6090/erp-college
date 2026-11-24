@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select, Table, Td, inputCls } from '@/components/ui';
 import { markEmployeeAttendance, markStudentAttendance, sendShortageAlerts, updateCorrection } from '@/actions/attendance';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Attendance Management' };
 export const dynamic = 'force-dynamic';
 
 export default async function Attendance({ searchParams }: { searchParams: Promise<{ date?: string }> }) {
-  await requireRole('super_admin', 'faculty');
+  await requireModule('attendance');
   const sp = await searchParams;
   const date = sp.date || toInputDate(new Date());
   const day = new Date(date + 'T00:00:00.000Z');

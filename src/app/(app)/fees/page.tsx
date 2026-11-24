@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, LinkButton, PageHeader, Select, Table, Td, inputCls } from '@/components/ui';
 import { collectFee, storeFeeStructure } from '@/actions/finance';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Fee & Student Accounts' };
 export const dynamic = 'force-dynamic';
 
 export default async function Fees() {
-  await requireRole('super_admin', 'accountant');
+  await requireModule('fees');
   const [courses, accounts, payments] = await Promise.all([
     db.course.findMany(),
     db.studentFeeAccount.findMany({ include: { student: true }, orderBy: { created_at: 'desc' } }),

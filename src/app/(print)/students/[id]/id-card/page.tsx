@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireAccess } from '@/lib/auth';
 import { PrintButton } from '@/components/forms';
 
 export const metadata = { title: 'Student ID Card' };
@@ -9,7 +9,7 @@ export default async function IdCard({ params }: { params: Promise<{ id: string 
   const { id } = await params;
   const s = await db.student.findUnique({ where: { id: Number(id) }, include: { college: { include: { campus: true } }, department: true, course: true } });
   if (!s) notFound();
-  const user = await requireRole('super_admin', 'student', 'parent', 'faculty');
+  const user = await requireAccess({ module: 'students', roles: ['student', 'parent', 'faculty'] });
   if (user.role?.slug === 'student' && s.user_id !== user.id) notFound();
   return (
     <div className="space-y-4">

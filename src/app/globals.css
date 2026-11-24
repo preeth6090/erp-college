@@ -22,3 +22,7 @@ img, svg, canvas { max-width: 100%; }
 }
 /* long words / emails / tokens never push the page wider */
 main { overflow-wrap: anywhere; }
+
+/* View-only staff: hide forms that change data (and cards that exist only to hold such a form) */
+[data-readonly='true'] form[data-edit] { display: none; }
+[data-readonly='true'] section:has(form[data-edit]):not(:has(table)):not(:has(.keep-readonly)) { display: none; }

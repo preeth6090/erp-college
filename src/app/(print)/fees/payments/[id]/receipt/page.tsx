@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireAccess } from '@/lib/auth';
 import { PrintButton } from '@/components/forms';
 import { Signature } from '@/components/ui';
 import { fmtDate, inr } from '@/lib/format';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Fee Receipt' };
 
 export default async function FeeReceipt({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requireRole('super_admin', 'accountant', 'student', 'parent');
+  const user = await requireAccess({ module: 'fees', roles: ['student', 'parent'] });
   const p = await db.feePayment.findUnique({ where: { id: Number(id) }, include: { student: { include: { college: true, course: true, studentGuardians: true } }, studentFeeAccount: true } });
   if (!p) notFound();
   if (user.role?.slug === 'student' && p.student.user_id !== user.id) notFound();

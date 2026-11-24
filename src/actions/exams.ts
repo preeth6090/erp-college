@@ -18,7 +18,7 @@ function gradeFor(total: number): [string, number, string] {
 }
 
 export async function storeExam(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'exams' }, async () => {
     const d = parse(
       z.object({ name: str(), exam_type: oneOf(['Internal', 'Mid-Semester', 'End-Semester', 'Practical', 'Supplementary', 'Backlog']), academic_session_id: int(1), course_id: int(1), semester: int(1, 12), start_date: date(), end_date: date() }),
       fd,
@@ -30,7 +30,7 @@ export async function storeExam(_p: ActionState, fd: FormData): Promise<ActionSt
 }
 
 export async function storeSchedule(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'exams' }, async () => {
     const d = parse(
       z.object({ exam_id: int(1), subject_id: int(1), exam_date: date(), start_time: str(8), end_time: str(8), room_no: str(30), invigilator_id: optInt(1), max_marks: int(10, 200), passing_marks: int(5, 100), question_paper_code: optStr(40) }),
       fd,
@@ -44,7 +44,7 @@ export async function storeSchedule(_p: ActionState, fd: FormData): Promise<Acti
 }
 
 export async function storeMark(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'exams' }, async () => {
     const d = parse(z.object({ exam_id: int(1), subject_id: int(1), student_id: int(1), internal_marks: num(0, 50), external_marks: num(0, 100) }), fd);
     const subject = await db.subject.findUniqueOrThrow({ where: { id: d.subject_id } });
     const total = d.internal_marks + d.external_marks;
@@ -60,7 +60,7 @@ export async function storeMark(_p: ActionState, fd: FormData): Promise<ActionSt
 }
 
 export async function togglePublish(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'exams' }, async () => {
     const d = parse(z.object({ id: int(1) }), fd);
     const e = await db.exam.findUniqueOrThrow({ where: { id: d.id } });
     await db.exam.update({ where: { id: e.id }, data: { is_published: !e.is_published } });

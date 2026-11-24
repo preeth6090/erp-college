@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select, Table, Td } from '@/components/ui';
 import { storeSection, storeTimetableSlot } from '@/actions/academics';
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export default async function Timetable() {
-  await requireRole('super_admin', 'faculty');
+  await requireModule('timetable');
   const [sections, slotsRaw, courses, subjects, faculty] = await Promise.all([
     db.classSection.findMany({ include: { course: true } }),
     db.timetableSlot.findMany({ include: { classSection: { include: { course: true } }, subject: true, faculty: true, substituteFaculty: true }, orderBy: { start_time: 'asc' } }),

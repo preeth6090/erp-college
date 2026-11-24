@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, LinkButton, PageHeader, Select, Table, Td } from '@/components/ui';
 import { storeExam, storeMark, storeSchedule, togglePublish } from '@/actions/exams';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Examination Management' };
 export const dynamic = 'force-dynamic';
 
 export default async function Exams() {
-  await requireRole('super_admin', 'faculty');
+  await requireModule('exams');
   const [exams, courses, sessions, subjects, faculty, students, marks] = await Promise.all([
     db.exam.findMany({ include: { course: true }, orderBy: { created_at: 'desc' } }),
     db.course.findMany(), db.academicSession.findMany(), db.subject.findMany(),

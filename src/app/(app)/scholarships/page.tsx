@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, Input, PageHeader, Select, Table, Td, inputCls } from '@/components/ui';
 import { applyScholarship, updateScholarshipStatus } from '@/actions/career';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Scholarships & Financial Aid' };
 export const dynamic = 'force-dynamic';
 
 export default async function Scholarships() {
-  await requireRole('super_admin');
+  await requireModule('scholarships');
   const [schemes, applications, students] = await Promise.all([
     db.scholarship.findMany(),
     db.scholarshipApplication.findMany({ include: { scholarship: true, student: true }, orderBy: { created_at: 'desc' } }),

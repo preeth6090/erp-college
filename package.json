@@ -9,7 +9,8 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "setup": "prisma generate && prisma db push && tsx prisma/seed.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:rbac": "tsx prisma/rbac-sync.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -41,7 +42,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "author": "Timestamp India",
-  "description": "College ERP — 30-module higher-education management system (Next.js, React, Prisma).",
+  "description": "College ERP \u2014 30-module higher-education management system (Next.js, React, Prisma).",
   "engines": {
     "node": ">=20"
   }

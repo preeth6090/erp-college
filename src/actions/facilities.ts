@@ -7,7 +7,7 @@ import { parse, str, optStr, date, oneOf, int, optInt, num } from '@/lib/validat
 import { todayDate } from '@/lib/format';
 
 export async function allocateHostel(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'hostel' }, async () => {
     const d = parse(z.object({ hostel_room_id: int(1), student_id: int(1), bed_no: str(10) }), fd);
     const room = await db.hostelRoom.findUniqueOrThrow({ where: { id: d.hostel_room_id } });
     if (room.occupied_beds >= room.capacity) throw new UserError('Selected room is already full.');
@@ -20,7 +20,7 @@ export async function allocateHostel(_p: ActionState, fd: FormData): Promise<Act
 }
 
 export async function storeHostelActivity(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'hostel' }, async () => {
     const d = parse(z.object({ hostel_id: int(1), student_id: optInt(1), activity_type: oneOf(['Visitor', 'Complaint', 'Maintenance', 'Outing Request', 'Attendance']), title: str(), details: optStr() }), fd);
     await db.hostelActivity.create({ data: d });
     return 'Hostel log/request recorded.';
@@ -28,7 +28,7 @@ export async function storeHostelActivity(_p: ActionState, fd: FormData): Promis
 }
 
 export async function allocateTransport(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin'], async () => {
+  return run({ module: 'transport' }, async () => {
     const d = parse(z.object({ transport_route_id: int(1), student_id: int(1), pickup_stop: str(100) }), fd);
     await db.transportAllocation.create({ data: { ...d, start_date: todayDate() } });
     return 'Student transport route allocated.';
@@ -36,7 +36,7 @@ export async function allocateTransport(_p: ActionState, fd: FormData): Promise<
 }
 
 export async function storeMaterial(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'lms' }, async () => {
     const d = parse(z.object({ subject_id: int(1), faculty_id: optInt(1), title: str(), material_type: oneOf(['PDF', 'Document', 'Video Lecture', 'Recorded Class', 'Quiz']), file_url: optStr(255), description: optStr() }), fd);
     await db.lmsMaterial.create({ data: d });
     return 'Study material published to LMS.';
@@ -44,7 +44,7 @@ export async function storeMaterial(_p: ActionState, fd: FormData): Promise<Acti
 }
 
 export async function storeAssignment(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'lms' }, async () => {
     const d = parse(z.object({ subject_id: int(1), faculty_id: optInt(1), title: str(), description: optStr(), due_date: date(), max_marks: int(1, 100) }), fd);
     await db.lmsAssignment.create({ data: d });
     return 'Assignment created.';
@@ -52,7 +52,7 @@ export async function storeAssignment(_p: ActionState, fd: FormData): Promise<Ac
 }
 
 export async function storeDiscussion(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async (user) => {
+  return run({ module: 'lms' }, async (user) => {
     const d = parse(z.object({ subject_id: int(1), topic: str(), message: str(5000) }), fd);
     await db.lmsDiscussion.create({ data: { ...d, user_id: user.id } });
     return 'Discussion post added.';
@@ -60,7 +60,7 @@ export async function storeDiscussion(_p: ActionState, fd: FormData): Promise<Ac
 }
 
 export async function gradeSubmission(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'lms' }, async () => {
     const d = parse(z.object({ id: int(1), marks_obtained: num(0), feedback: optStr() }), fd);
     const { id, ...data } = d;
     await db.lmsSubmission.update({ where: { id }, data });

@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Card, FormGrid, Input, PageHeader, Select, Stat, Table, Td } from '@/components/ui';
 import { storeVoucher } from '@/actions/finance';
@@ -9,7 +9,7 @@ export const metadata = { title: 'College Finance & Accounting' };
 export const dynamic = 'force-dynamic';
 
 export default async function Finance() {
-  await requireRole('super_admin', 'accountant');
+  await requireModule('finance');
   const [accounts, vouchers, budgets, assets, departments] = await Promise.all([
     db.chartOfAccount.findMany({ orderBy: { code: 'asc' } }),
     db.financialVoucher.findMany({ include: { debitAccount: true, creditAccount: true }, orderBy: { created_at: 'desc' } }),

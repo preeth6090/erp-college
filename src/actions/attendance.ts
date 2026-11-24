@@ -6,7 +6,7 @@ import { run, notify, type ActionState } from '@/lib/action';
 import { parse, str, optStr, date, oneOf, int, optInt } from '@/lib/validators';
 
 export async function markStudentAttendance(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async (user) => {
+  return run({ module: 'attendance' }, async (user) => {
     const d = parse(z.object({ attendance_date: date(), subject_id: optInt(1), class_section_id: optInt(1), method: oneOf(['Manual', 'QR', 'Biometric', 'RFID']) }), fd);
     const rows: [number, string][] = [];
     for (const [k, v] of fd.entries()) {
@@ -25,7 +25,7 @@ export async function markStudentAttendance(_p: ActionState, fd: FormData): Prom
 }
 
 export async function markEmployeeAttendance(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'attendance' }, async () => {
     const d = parse(
       z.object({ employee_id: int(1), attendance_date: date(), check_in: optStr(8), check_out: optStr(8), status: oneOf(['Present', 'Absent', 'Late', 'Half Day', 'On Leave']), method: oneOf(['Manual', 'Biometric', 'RFID']) }),
       fd,
@@ -40,7 +40,7 @@ export async function markEmployeeAttendance(_p: ActionState, fd: FormData): Pro
 }
 
 export async function sendShortageAlerts(_p: ActionState, _fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'attendance' }, async () => {
     const students = await db.student.findMany({ where: { status: 'Active' }, include: { studentAttendances: true, studentGuardians: true } });
     let count = 0;
     for (const s of students) {
@@ -61,7 +61,7 @@ export async function sendShortageAlerts(_p: ActionState, _fd: FormData): Promis
 }
 
 export async function updateCorrection(_p: ActionState, fd: FormData): Promise<ActionState> {
-  return run(['super_admin', 'faculty'], async () => {
+  return run({ module: 'attendance' }, async () => {
     const d = parse(z.object({ id: int(1), status: oneOf(['Approved', 'Rejected']) }), fd);
     await db.attendanceCorrection.update({ where: { id: d.id }, data: { status: d.status } });
     return `Correction request ${d.status}.`;

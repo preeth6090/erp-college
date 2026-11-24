@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, Checkbox, Input, PageHeader, Select, Table, Td, Textarea, inputCls } from '@/components/ui';
 import { resolveGrievance, storeDisciplinary, storeGrievance } from '@/actions/career';
@@ -9,7 +9,7 @@ export const metadata = { title: 'Grievance & Discipline' };
 export const dynamic = 'force-dynamic';
 
 export default async function Grievances() {
-  await requireRole('super_admin');
+  await requireModule('grievances');
   const [grievances, students] = await Promise.all([db.grievance.findMany({ include: { student: true }, orderBy: { created_at: 'desc' } }), db.student.findMany()]);
   const stu = students.map((s) => ({ value: s.id, label: s.full_name }));
   return (

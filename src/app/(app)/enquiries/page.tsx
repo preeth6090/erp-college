@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { requireRole } from '@/lib/auth';
+import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select, Table, Td, Textarea, inputCls } from '@/components/ui';
 import { addFollowup, bulkNotifyEnquiries, storeEnquiry } from '@/actions/admissions';
@@ -8,7 +8,7 @@ export const metadata = { title: 'Enquiry & Admission CRM' };
 export const dynamic = 'force-dynamic';
 
 export default async function Enquiries() {
-  await requireRole('super_admin');
+  await requireModule('enquiries');
   const [enquiries, courses, counsellors] = await Promise.all([
     db.admissionEnquiry.findMany({ include: { course: true }, orderBy: { created_at: 'desc' } }),
     db.course.findMany(),
