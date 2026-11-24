@@ -31,15 +31,18 @@ export const permsForRole = unstable_cache(
   { revalidate: 60, tags: ['perms'] },
 );
 
-export async function createSession(userId: number, opts: { role?: RoleClaim | null; hours: number }) {
-  const maxAge = Math.round(opts.hours * 3600);
+export async function createSession(userId: number, opts: { role?: RoleClaim | null; hours: number; idleMinutes: number }) {
+  const now = Math.floor(Date.now() / 1000);
+  const idle = Math.max(1, Math.round(opts.idleMinutes)) * 60;
+  const abs = now + Math.round(opts.hours * 3600); // hard cap on one sign-in
   // The role is embedded in the signed token so normal requests need only ONE database lookup.
-  const token = await new SignJWT({ uid: userId, role: opts.role ?? null })
+  const token = await new SignJWT({ uid: userId, role: opts.role ?? null, idle, abs })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime(`${maxAge}s`)
+    .setExpirationTime(Math.min(now + idle, abs)) // slides forward with activity (see proxy.ts)
     .sign(secret());
-  (await cookies()).set(COOKIE, token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/', maxAge });
+  // No maxAge: a session cookie, so closing the browser signs the user out. Nothing is remembered between visits.
+  (await cookies()).set(COOKIE, token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/' });
 }
 
 export async function destroySession() {
@@ -73,7 +76,7 @@ export const getUser = cache(async () => {
     const owner = role?.slug === 'owner';
     if (!owner && licenseProblem(license)) return null;
     const enabled = owner || !license.modules ? null : new Set(license.modules);
-    return { ...row, role, perms: new Set(perms), enabled, institution: license.institution_name };
+    return { ...row, role, perms: new Set(perms), enabled, institution: license.institution_name, applyUrl: license.apply_url, idleMinutes: Math.max(1, Math.round(Number(payload.idle ?? 600) / 60)) };
   } catch {
     return null;
   }

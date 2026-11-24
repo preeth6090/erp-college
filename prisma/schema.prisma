@@ -1146,6 +1146,7 @@ model TransportVehicle {
   insurance_expiry  DateTime?
   fitness_expiry    DateTime?
   gps_device_id     String?
+  tracking_url      String?
   last_fuel_liters  Float     @default(0)
   maintenance_notes String?
   created_at        DateTime  @default(now())

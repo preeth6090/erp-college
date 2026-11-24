@@ -1,4 +1,6 @@
+import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
+import { getLicense } from '@/lib/license';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Checkbox, Field, FormGrid, Input, Select, Textarea, inputCls } from '@/components/ui';
 import { submitPublicApplication } from '@/actions/admissions';
@@ -7,6 +9,8 @@ export const metadata = { title: 'Online Admission Portal' };
 export const dynamic = 'force-dynamic';
 
 export default async function ApplyPage() {
+  const license = await getLicense();
+  if (license.apply_url) redirect(license.apply_url); // the institution uses its own admission form
   const [courses, sessions] = await Promise.all([
     db.course.findMany({ where: { is_active: true } }),
     db.academicSession.findMany({ where: { is_active: true } }),

@@ -90,6 +90,10 @@ export const DEMO_USERS: { email: string; name: string; role: string }[] = [
 export const PRESETS: Record<string, { label: string; hint: string; modules: ModuleKey[] }> = {
   all: { label: 'Everything', hint: 'Every module', modules: MODULE_KEYS },
   college: { label: 'College / University', hint: 'Full higher-education suite', modules: MODULE_KEYS },
+  essentials: {
+    label: 'Admissions + Attendance + Transport', hint: 'Just the three, plus Team & Roles so the admin can add staff',
+    modules: ['admissions', 'attendance', 'transport', 'team', 'access'],
+  },
   pu_college: {
     label: 'PU / Junior college', hint: 'Admissions, academics, fees, transport, hostel',
     modules: ['dashboard', 'admissions', 'enquiries', 'students', 'academics', 'timetable', 'attendance', 'exams', 'fees', 'transport', 'hostel', 'library', 'certificates', 'communication', 'events', 'team', 'access', 'settings'],

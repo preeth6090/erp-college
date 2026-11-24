@@ -7,8 +7,8 @@ import { LoginForm } from './LoginForm';
 
 export const metadata = { title: 'Sign In' };
 
-export default async function LoginPage() {
-  const [user, policy] = await Promise.all([getUser(), getPolicy()]);
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ reason?: string }> }) {
+  const [user, policy, sp] = await Promise.all([getUser(), getPolicy(), searchParams]);
   if (user) redirect(homeFor(user));
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
@@ -25,7 +25,8 @@ export default async function LoginPage() {
             <Logo dark className="mb-8 lg:hidden" />
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">Welcome back</h1>
             <p className="mb-6 mt-1 text-sm text-slate-500">Sign in to continue to VidyaOS.</p>
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><LoginForm allowRemember={policy.allow_remember} /></div>
+            {sp.reason === 'idle' && <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">For your security you were signed out after {policy.idle_timeout_minutes} minutes of inactivity. Please sign in again.</div>}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><LoginForm /></div>
             <p className="mt-4 text-center text-xs text-slate-400">Trouble signing in? Ask your administrator to reset your password.</p>
           </div>
         </div>

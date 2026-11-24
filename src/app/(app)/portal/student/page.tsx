@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { requireRole } from '@/lib/auth';
 import { attendancePct, studentFor } from '@/lib/portal';
 import { ActionForm, SubmitButton } from '@/components/forms';
+import { BusCard } from '@/components/BusCard';
 import { Badge, Card, Input, LinkButton, PageHeader, Select, Stat } from '@/components/ui';
 import { submitAssignment } from '@/actions/portals';
 import { fmtDate, hhmm, inr0 } from '@/lib/format';
@@ -35,6 +36,7 @@ export default async function StudentPortal() {
         <Stat label="Attendance" value={`${attendancePct(student.studentAttendances)}%`} hint="Min 75% required" tone="emerald" />
         <Stat label="Fee Balance" value={inr0(balance)} hint="Current Session" tone="rose" />
       </div>
+      <BusCard studentId={student.id} />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="My Weekly Timetable">
           {timetable.length === 0 && <p className="text-sm text-slate-400">No timetable published yet.</p>}

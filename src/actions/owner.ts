@@ -11,12 +11,12 @@ import type { ActionState } from '@/lib/action';
 export async function saveSubscription(_p: ActionState, fd: FormData): Promise<ActionState> {
   return run('owner', async (actor) => {
     const d = parse(
-      z.object({ status: oneOf(['Active', 'Suspended'] as const), valid_until: optDate(), max_students: optInt(1, 1000000), max_users: optInt(1, 100000), type: oneOf(Object.keys(PRESETS) as [string, ...string[]]), institution_name: optStr(255) }),
+      z.object({ status: oneOf(['Active', 'Suspended'] as const), valid_until: optDate(), max_students: optInt(1, 1000000), max_users: optInt(1, 100000), type: oneOf(Object.keys(PRESETS) as [string, ...string[]]), institution_name: optStr(255), apply_url: z.preprocess((v) => (v === '' || v == null ? undefined : v), z.string().trim().max(500).url('must be a full link starting with https://').refine((u) => /^https?:\/\//i.test(u), 'must start with http:// or https://').optional()) }),
       fd,
     );
     await saveLicense({
       status: d.status, valid_until: d.valid_until ? d.valid_until.toISOString().slice(0, 10) : null,
-      max_students: d.max_students ?? null, max_users: d.max_users ?? null, type: d.type, ...(d.institution_name ? { institution_name: d.institution_name } : {}),
+      max_students: d.max_students ?? null, max_users: d.max_users ?? null, type: d.type, ...(d.institution_name ? { institution_name: d.institution_name } : {}), apply_url: d.apply_url ?? '',
     });
     updateTag('license');
     await audit(actor, 'LICENSE_UPDATED', 'Owner', `Subscription: ${d.status}, until ${d.valid_until?.toISOString().slice(0, 10) ?? 'no end'}, students ${d.max_students ?? '∞'}, staff logins ${d.max_users ?? '∞'}`);

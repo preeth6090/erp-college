@@ -127,7 +127,7 @@ export async function storeEnquiry(_p: ActionState, fd: FormData): Promise<Actio
     const d = parse(
       z.object({
         student_name: str(), phone: str(20), email: optEmail(),
-        source: oneOf(['Walk-in', 'Telephone', 'Online', 'Campaign', 'Referral']),
+        source: oneOf(['Walk-in', 'Telephone', 'Online', 'Campaign', 'Referral', 'Website']),
         campaign_name: optStr(100), course_id: optInt(1), counsellor_id: optInt(1), next_followup_date: optDate(), notes: optStr(),
       }),
       fd,

@@ -8,9 +8,8 @@ export type Policy = {
   require_complexity: boolean;
   max_failed_attempts: number;
   lockout_minutes: number;
-  session_hours: number;
-  remember_days: number;
-  allow_remember: boolean;
+  session_hours: number; // absolute maximum length of one sign-in
+  idle_timeout_minutes: number; // auto sign-out after this much inactivity
   password_expiry_days: number; // 0 = never
   force_change_on_first_login: boolean;
   invite_valid_days: number;
@@ -21,9 +20,8 @@ export const POLICY_DEFAULTS: Policy = {
   require_complexity: true,
   max_failed_attempts: 5,
   lockout_minutes: 15,
-  session_hours: 12,
-  remember_days: 30,
-  allow_remember: true,
+  session_hours: 10,
+  idle_timeout_minutes: 10,
   password_expiry_days: 0,
   force_change_on_first_login: true,
   invite_valid_days: 7,

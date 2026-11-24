@@ -87,7 +87,7 @@ export async function saveLoginPolicy(_p: ActionState, fd: FormData): Promise<Ac
     const d = parse(
       z.object({
         min_password_length: int(6, 64), require_complexity: bool(), max_failed_attempts: int(0, 20), lockout_minutes: int(1, 1440),
-        session_hours: num(1, 168), remember_days: int(1, 365), allow_remember: bool(), password_expiry_days: int(0, 730),
+        session_hours: num(1, 24), idle_timeout_minutes: int(2, 120), password_expiry_days: int(0, 730),
         force_change_on_first_login: bool(), invite_valid_days: int(1, 60),
       }),
       fd,

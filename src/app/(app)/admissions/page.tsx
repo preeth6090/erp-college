@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, LinkButton, PageHeader, Table, Td, inputCls } from '@/components/ui';
+import { getLicense } from '@/lib/license';
 import { generateMeritList, updateApplicationStatus } from '@/actions/admissions';
 
 export const metadata = { title: 'Online Admission Management' };
@@ -10,6 +11,7 @@ const STATUSES = ['Submitted', 'Verified', 'Merit Listed', 'Waiting List', 'Appr
 
 export default async function Admissions({ searchParams }: { searchParams: Promise<{ status?: string; course_id?: string }> }) {
   await requireModule('admissions');
+  const license = await getLicense();
   const { status, course_id } = await searchParams;
   const [apps, courses] = await Promise.all([
     db.admissionApplication.findMany({
@@ -21,7 +23,7 @@ export default async function Admissions({ searchParams }: { searchParams: Promi
   ]);
   return (
     <div className="space-y-4">
-      <PageHeader title="Online Admission Management & Merit List" actions={<LinkButton href="/apply" target="_blank">Public Application Form ↗</LinkButton>} />
+      <PageHeader title="Online Admission Management & Merit List" actions={<LinkButton href={license.apply_url || '/apply'} target="_blank">Public Application Form ↗</LinkButton>} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <form method="GET" className="flex flex-wrap gap-2">
           <select name="course_id" defaultValue={course_id ?? ''} className={inputCls + ' w-auto'}>

@@ -252,7 +252,7 @@ export async function acceptInvite(_p: ActionState, fd: FormData): Promise<Actio
     const u = await createUserRecord({ name: d.name, email: d.email, phone: d.phone, roleId: inv.role_id, collegeId: inv.college_id ?? undefined, password: d.password, mustChange: false, accessExpires: inv.access_expires_at });
     await db.invite.update({ where: { id: inv.id }, data: { status: 'Accepted', accepted_user_id: u.id, accepted_at: new Date() } });
     await db.auditLog.create({ data: { user_id: u.id, action: 'INVITE_ACCEPTED', module: 'Team', description: `${u.email} joined as ${inv.role.name} via invite` } });
-    await createSession(u.id, { role: { id: inv.role.id, slug: inv.role.slug, name: inv.role.name }, hours: policy.session_hours });
+    await createSession(u.id, { role: { id: inv.role.id, slug: inv.role.slug, name: inv.role.name }, hours: policy.session_hours, idleMinutes: policy.idle_timeout_minutes });
     const perms = new Set(await permsForRole(inv.role.id));
     const lic = await getLicense();
     target = homeFor({ role: inv.role, perms, enabled: lic.modules ? new Set(lic.modules) : null });

@@ -13,13 +13,14 @@ export type License = {
   modules: string[] | null; // null = every module
   type: string;
   institution_name: string;
+  apply_url: string; // the institution's own online admission form (blank = use the built-in /apply)
 };
 
 const K = (k: string) => `license.${k}`;
 
 export const getLicense = unstable_cache(
   async (): Promise<License> => {
-    const rows = await db.systemSetting.findMany({ where: { OR: [{ key: { startsWith: 'license.' } }, { key: 'institution_name' }] } });
+    const rows = await db.systemSetting.findMany({ where: { OR: [{ key: { startsWith: 'license.' } }, { key: 'institution_name' }, { key: 'apply_url' }] } });
     const m = Object.fromEntries(rows.map((r) => [r.key, r.value ?? '']));
     const num = (v?: string) => (v && Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : null);
     return {
@@ -30,6 +31,7 @@ export const getLicense = unstable_cache(
       modules: m[K('modules')] ? m[K('modules')].split(',').filter((x) => MODULE_KEYS.includes(x as never)) : null,
       type: m[K('type')] || 'college',
       institution_name: m['institution_name'] || '',
+      apply_url: m['apply_url'] || '',
     };
   },
   ['license'],
@@ -44,6 +46,9 @@ export async function saveLicense(patch: Partial<License>) {
     [K('max_users'), l.max_users ? String(l.max_users) : ''], [K('modules'), l.modules ? l.modules.join(',') : ''], [K('type'), l.type],
   ];
   for (const [key, value] of rows) await db.systemSetting.upsert({ where: { key }, update: { value, group_name: 'license' }, create: { key, value, group_name: 'license' } });
+  if (patch.apply_url !== undefined) {
+    await db.systemSetting.upsert({ where: { key: 'apply_url' }, update: { value: l.apply_url }, create: { key: 'apply_url', group_name: 'general', value: l.apply_url } });
+  }
   if (patch.institution_name !== undefined) {
     await db.systemSetting.upsert({ where: { key: 'institution_name' }, update: { value: l.institution_name }, create: { key: 'institution_name', group_name: 'general', value: l.institution_name } });
   }

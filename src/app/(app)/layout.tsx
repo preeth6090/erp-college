@@ -18,20 +18,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const groups = NAV.map((g) => ({
     ...g,
     // admins preview every portal; everyone else sees only their own role's portal
-    items: g.items.filter((i) => (i.ownerOnly ? isOwner(user) : i.module ? can(user, i.module) : isAdmin(user) || (i.roles ?? []).includes(slug))),
+    items: g.items.filter((i) => (i.ownerOnly ? isOwner(user) : i.module ? can(user, i.module) : isOwner(user) || (i.roles ?? []).includes(slug))),
   })).filter((g) => g.items.length);
   const viewOnly = MODULES.filter((m) => can(user, m.key) && !can(user, m.key, 'edit')).map((m) => m.key);
 
   return (
     <AppShell
       viewOnly={viewOnly}
+      idleMinutes={user.idleMinutes}
       brand={<div className="min-w-0"><Logo />{user.institution && <div className="mt-1.5 truncate pl-0.5 text-[11px] font-medium text-slate-400">{user.institution}</div>}</div>}
       nav={<Sidebar groups={groups} />}
       footer={<div className="border-t border-white/5 px-5 py-3 text-[11px] text-slate-500">{CREATOR_LINE}</div>}
       header={
         <>
           {can(user, 'admissions', 'edit') && (
-            <Link href="/apply" target="_blank" className="hidden items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-100 sm:inline-flex">
+            <Link href={user.applyUrl || '/apply'} target="_blank" rel="noopener noreferrer" className="hidden items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-100 sm:inline-flex">
               Admission form <ExternalLink className="h-3.5 w-3.5" />
             </Link>
           )}

@@ -4,9 +4,10 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { MODULES } from '@/lib/modules';
 import { Logo } from '@/components/Logo';
+import { IdleGuard } from '@/components/IdleGuard';
 
 /** Responsive frame: fixed sidebar on desktop, slide-out drawer with a hamburger on phones/tablets. */
-export function AppShell({ brand, nav, footer, header, viewOnly = [], children }: { brand: ReactNode; nav: ReactNode; footer: ReactNode; header: ReactNode; viewOnly?: string[]; children: ReactNode }) {
+export function AppShell({ brand, nav, footer, header, viewOnly = [], idleMinutes, children }: { brand: ReactNode; nav: ReactNode; footer: ReactNode; header: ReactNode; viewOnly?: string[]; idleMinutes?: number; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const path = usePathname();
   useEffect(() => setOpen(false), [path]);
@@ -21,6 +22,7 @@ export function AppShell({ brand, nav, footer, header, viewOnly = [], children }
 
   return (
     <div className="flex min-h-dvh">
+      {idleMinutes ? <IdleGuard minutes={idleMinutes} /> : null}
       {open && <div className="no-print fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} aria-hidden />}
       <aside
         id="sidebar"

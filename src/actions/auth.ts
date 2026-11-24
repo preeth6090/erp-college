@@ -59,12 +59,11 @@ export async function login(_prev: LoginState, fd: FormData): Promise<LoginState
   if (blocked) { await log(user.id, 'LOGIN_BLOCKED', `Sign-in blocked (licence): ${email}`); return { error: blocked, email }; }
   const expired = policy.password_expiry_days > 0 && user.password_changed_at && now.getTime() - user.password_changed_at.getTime() > policy.password_expiry_days * 86400000;
   await db.user.update({ where: { id: user.id }, data: { failed_attempts: 0, locked_until: null, last_login_at: now, ...(expired ? { must_change_password: true } : {}) } });
-  const remember = policy.allow_remember && fd.get('remember') === '1';
   await createSession(user.id, {
     role: user.role ? { id: user.role.id, slug: user.role.slug, name: user.role.name } : null,
-    hours: remember ? policy.remember_days * 24 : policy.session_hours,
+    hours: policy.session_hours, idleMinutes: policy.idle_timeout_minutes,
   });
-  await log(user.id, 'LOGIN', `User signed in: ${email}${remember ? ' (remembered)' : ''}`);
+  await log(user.id, 'LOGIN', `User signed in: ${email}`);
   if (user.must_change_password || expired) redirect('/account/password');
   const perms = new Set(user.role ? await permsForRole(user.role.id) : []);
   redirect(homeFor({ role: user.role, perms, enabled: user.role?.slug === 'owner' || !license.modules ? null : new Set(license.modules) }));
@@ -94,7 +93,7 @@ export async function changePassword(_prev: PasswordState, fd: FormData): Promis
   await db.user.update({ where: { id: user.id }, data: { password: bcrypt.hashSync(d.data.next, 10), must_change_password: false, password_changed_at: new Date(), failed_attempts: 0 } });
   await log(user.id, 'PASSWORD_CHANGED', `Password changed: ${user.email}`);
   // the change signs out other sessions, so start a fresh one here
-  await createSession(user.id, { role: row.role ? { id: row.role.id, slug: row.role.slug, name: row.role.name } : null, hours: policy.session_hours });
+  await createSession(user.id, { role: row.role ? { id: row.role.id, slug: row.role.slug, name: row.role.name } : null, hours: policy.session_hours, idleMinutes: policy.idle_timeout_minutes });
   const perms = new Set(row.role ? await permsForRole(row.role.id) : []);
   const lic = await getLicense();
   redirect(homeFor({ role: row.role, perms, enabled: row.role?.slug === 'owner' || !lic.modules ? null : new Set(lic.modules) }));

@@ -111,7 +111,7 @@ export default async function Access({ searchParams }: { searchParams: Promise<{
             <ul className="list-disc space-y-1 pl-5 text-sm text-slate-600">
               <li>{describePolicy(policy)}</li>
               <li>{policy.max_failed_attempts > 0 ? `Accounts lock for ${policy.lockout_minutes} minutes after ${policy.max_failed_attempts} wrong passwords.` : 'Accounts never lock after wrong passwords.'}</li>
-              <li>Sessions last {policy.session_hours} hours{policy.allow_remember ? `, or ${policy.remember_days} days with “Keep me signed in”` : ''}.</li>
+              <li>Everyone is signed out after {policy.idle_timeout_minutes} minutes of inactivity (and after {policy.session_hours} hours at most). The password is asked at every sign-in — nothing is remembered.</li>
               <li>{policy.password_expiry_days > 0 ? `Passwords expire every ${policy.password_expiry_days} days.` : 'Passwords never expire.'} {policy.force_change_on_first_login ? 'New logins must set their own password on first sign-in.' : ''}</li>
               <li>Temporary staff can be given an end date, after which they simply can&apos;t sign in.</li>
             </ul>
@@ -140,12 +140,12 @@ export default async function Access({ searchParams }: { searchParams: Promise<{
               </section>
               <section>
                 <h4 className="mb-2 text-sm font-semibold text-slate-800">Sessions & invites</h4>
-                <div className="grid gap-3 sm:grid-cols-4">
-                  <Input label="Session length (hours)" name="session_hours" type="number" min={1} max={168} step="0.5" defaultValue={policy.session_hours} />
-                  <Input label="“Keep me signed in” (days)" name="remember_days" type="number" min={1} max={365} defaultValue={policy.remember_days} />
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <Input label="Auto sign-out after inactivity (minutes)" name="idle_timeout_minutes" type="number" min={2} max={120} defaultValue={policy.idle_timeout_minutes} />
+                  <Input label="Longest single sign-in (hours)" name="session_hours" type="number" min={1} max={24} step="0.5" defaultValue={policy.session_hours} />
                   <Input label="Invite links valid (days)" name="invite_valid_days" type="number" min={1} max={60} defaultValue={policy.invite_valid_days} />
-                  <div className="flex items-end pb-2"><Checkbox label="Offer “Keep me signed in”" name="allow_remember" defaultChecked={policy.allow_remember} /></div>
                 </div>
+                <p className="mt-2 text-xs text-slate-500">People get a 60-second warning with a “Stay signed in” button before they are signed out. Passwords are always required at sign-in; there is no “keep me signed in”.</p>
               </section>
             </fieldset>
             {editable && <SubmitButton>Save policy</SubmitButton>}

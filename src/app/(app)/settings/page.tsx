@@ -3,6 +3,7 @@ import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, LinkButton, PageHeader, Select, Table, Td } from '@/components/ui';
 import { storeCampus, storeCollege, updateCampus, updateCollege, updateSetting } from '@/actions/settings';
+import { getLicense } from '@/lib/license';
 import { fmtDateTime } from '@/lib/format';
 
 export const metadata = { title: 'System Administration & RBAC' };
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Settings() {
   await requireModule('settings');
+  const license = await getLicense();
   const [campuses, colleges, roles, settings, auditLogs] = await Promise.all([
     db.campus.findMany(), db.college.findMany({ include: { campus: true } }), db.role.findMany(), db.systemSetting.findMany(),
     db.auditLog.findMany({ include: { user: true }, orderBy: { created_at: 'desc' }, take: 30 }),
@@ -101,7 +103,7 @@ export default async function Settings() {
           </Table>
         </Card>
       </div>
-      <LinkButton href="/apply" target="_blank">Public Admission Form ↗</LinkButton>
+      <LinkButton href={license.apply_url || '/apply'} target="_blank">Public Admission Form ↗</LinkButton>
     </div>
   );
 }

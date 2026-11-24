@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { requireRole } from '@/lib/auth';
 import { attendancePct } from '@/lib/portal';
 import { Card, PageHeader, Stat, inputCls } from '@/components/ui';
+import { BusCard } from '@/components/BusCard';
 import { inr0 } from '@/lib/format';
 
 export const metadata = { title: 'Parent Portal' };
@@ -36,6 +37,7 @@ export default async function ParentPortal({ searchParams }: { searchParams: Pro
         <Stat label="Attendance Status" value={`${attendancePct(child.studentAttendances)}%`} tone="emerald" />
         <Stat label="Outstanding Fees" value={inr0(child.studentFeeAccounts.reduce((s, a) => s + a.balance_amount, 0))} tone="rose" />
       </div>
+      <BusCard studentId={child.id} title={`${child.full_name.split(' ')[0]}’s bus`} />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Recent Exam Results" actions={<Link href={`/students/${child.id}/marksheet`} target="_blank" className="text-xs text-indigo-600">Full marksheet →</Link>}>
           {child.examMarks.map((m) => <div key={m.id} className="row border-b border-slate-100 py-1.5 text-sm last:border-0"><span>{m.subject.code} - {m.subject.name}</span><span className="font-medium">{m.total_marks}/100 ({m.grade})</span></div>)}

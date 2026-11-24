@@ -43,6 +43,7 @@ export default async function OwnerConsole() {
             <Input label="Access valid until (blank = no end)" name="valid_until" type="date" defaultValue={toInputDate(license.valid_until)} />
             <Input label="Max students (blank = unlimited)" name="max_students" type="number" min={1} defaultValue={license.max_students ?? ''} />
             <Input label="Max staff logins (blank = unlimited)" name="max_users" type="number" min={1} defaultValue={license.max_users ?? ''} />
+            <Input label="Admission form link (blank = built-in form)" name="apply_url" type="url" defaultValue={license.apply_url} placeholder="https://www.yourcollege.in/apply" className="sm:col-span-2" />
           </div>
           <p className="text-xs text-slate-500">When validity ends, or if the status is Suspended, everyone at the institution is signed out and cannot sign in — only owner accounts can. Students and guardians do not count towards the staff-login limit.</p>
           <SubmitButton>Save subscription</SubmitButton>
