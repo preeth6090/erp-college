@@ -25,7 +25,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
   return (
     <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-indigo-600">You&apos;re invited</div>
-      <h1 className="text-xl font-bold text-slate-900">Join College ERP as {inv.role.name}</h1>
+      <h1 className="text-xl font-bold text-slate-900">Join VidyaOS as {inv.role.name}</h1>
       <p className="mb-5 mt-1 text-sm text-slate-500">Create your sign-in below. {inv.role.description}</p>
       <InviteForm token={token} name={inv.name ?? ''} email={inv.email ?? ''} lockEmail={!!inv.email} rule={describePolicy(policy)} />
     </div>

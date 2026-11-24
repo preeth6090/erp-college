@@ -15,7 +15,7 @@ export default async function Payslip({ params }: { params: Promise<{ id: string
   if (user.role?.slug === 'faculty' && p.employee.user_id !== user.id) notFound();
   const e = p.employee;
   const Row = ({ l, v, b }: { l: string; v: number; b?: boolean }) => (
-    <div className="flex justify-between border-b border-slate-100 py-1.5 text-sm"><span>{l}</span><span className={b ? 'font-bold' : ''}>{inr(v)}</span></div>
+    <div className="row border-b border-slate-100 py-1.5 text-sm"><span>{l}</span><span className={b ? 'font-bold' : ''}>{inr(v)}</span></div>
   );
   return (
     <div className="print-full rounded-xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm">

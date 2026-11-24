@@ -78,11 +78,11 @@ export async function createInvite(_p: ActionState, fd: FormData): Promise<Actio
     });
     const role = await db.role.findUniqueOrThrow({ where: { id: d.role_id } });
     const url = `${await origin()}/invite/${token}`;
-    const text = `You've been invited to join College ERP as ${role.name}. Set up your login here (valid ${days} days): ${url}`;
+    const text = `You've been invited to join VidyaOS as ${role.name}. Set up your login here (valid ${days} days): ${url}`;
     await audit(actor, 'INVITE_CREATED', 'Team', `Invite for ${d.email ?? d.name ?? 'anyone with the link'} as ${role.name}`);
     return {
       message: `Invite created — valid for ${days} days.`,
-      data: { link: { label: `Invite link for ${role.name}`, url, share: { whatsapp: `https://wa.me/?text=${encodeURIComponent(text)}`, ...(d.email ? { mailto: `mailto:${d.email}?subject=${encodeURIComponent('Your College ERP invitation')}&body=${encodeURIComponent(text)}` } : {}) } } },
+      data: { link: { label: `Invite link for ${role.name}`, url, share: { whatsapp: `https://wa.me/?text=${encodeURIComponent(text)}`, ...(d.email ? { mailto: `mailto:${d.email}?subject=${encodeURIComponent('Your VidyaOS invitation')}&body=${encodeURIComponent(text)}` } : {}) } } },
     };
   });
 }

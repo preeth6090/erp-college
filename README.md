@@ -1,6 +1,6 @@
-# College ERP
+# VidyaOS
 
-College ERP is built with **Next.js (React)**, **TypeScript**, **Tailwind CSS** and **Prisma** on **PostgreSQL**.
+VidyaOS is built with **Next.js (React)**, **TypeScript**, **Tailwind CSS** and **Prisma** on **PostgreSQL**.
 
 *Created by Timestamp India.*
 

@@ -1,5 +1,5 @@
 {
-  "name": "college-erp",
+  "name": "vidyaos",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -43,7 +43,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "author": "Timestamp India",
-  "description": "College ERP (Next.js, React, Prisma).",
+  "description": "VidyaOS (Next.js, React, Prisma).",
   "engines": {
     "node": ">=20"
   }

@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: { default: 'College ERP', template: '%s — College ERP' },
+  title: { default: 'VidyaOS', template: '%s — VidyaOS' },
   description: 'Manage students, staff, fees and academics in one place.',
   authors: [{ name: 'Timestamp India' }],
   creator: 'Timestamp India',

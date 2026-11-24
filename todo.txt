@@ -1,4 +1,4 @@
-College ERP – Modules
+VidyaOS – Modules
 1. Dashboard & Analytics
 - Total students, faculty and staff.
 - New admission enquiries.

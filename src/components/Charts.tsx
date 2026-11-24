@@ -9,7 +9,7 @@ ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, LineElement
 ChartJS.defaults.font.family = 'ui-sans-serif, system-ui, sans-serif';
 ChartJS.defaults.color = '#64748b';
 
-const COLORS = ['#4f46e5', '#10b981', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#ec4899'];
+const COLORS = ['#274a98', '#5a9a3f', '#e6a82b', '#0ea5e9', '#ef4444', '#8ba5dc', '#75b256', '#c9871a'];
 const grid = { color: 'rgba(148,163,184,0.18)' };
 const fmtINR = (v: number | string) => '₹' + Number(v).toLocaleString('en-IN');
 

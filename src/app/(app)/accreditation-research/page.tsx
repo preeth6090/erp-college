@@ -49,17 +49,25 @@ export default async function AccreditationResearch() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Accreditation & Statutory Compliance Repository">
           {acc.map((a) => (
-            <div key={a.id} className="flex justify-between border-b border-slate-100 py-2 text-sm last:border-0">
-              <div><Badge tone="indigo">{a.framework}</Badge> <strong>{a.title}</strong><div className="text-xs text-slate-500">{a.criterion} ({a.cycle_year})</div></div>
-              <span className="text-xs font-semibold text-emerald-700">{a.score_or_value}</span>
+            <div key={a.id} className="row border-b border-slate-100 py-3 text-sm last:border-0">
+              <div>
+                <Badge tone="indigo">{a.framework}</Badge>
+                <div className="mt-1 font-semibold text-slate-900">{a.title}</div>
+                <div className="text-xs text-slate-500">{a.criterion} ({a.cycle_year})</div>
+              </div>
+              {a.score_or_value && <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100">{a.score_or_value}</span>}
             </div>
           ))}
         </Card>
         <Card title="Research, Grants & Patents">
           {research.map((r) => (
-            <div key={r.id} className="flex justify-between border-b border-slate-100 py-2 text-sm last:border-0">
-              <div><Badge tone="blue">{r.record_type}</Badge> <strong>{r.title}</strong><div className="text-xs text-slate-500">Lead: {r.lead_name} • {r.funding_agency ?? r.patent_no ?? r.year}</div></div>
-              <span className="text-xs font-semibold">{r.grant_amount > 0 ? inr0(r.grant_amount) : r.status}</span>
+            <div key={r.id} className="row border-b border-slate-100 py-3 text-sm last:border-0">
+              <div>
+                <Badge tone="blue">{r.record_type}</Badge>
+                <div className="mt-1 font-semibold text-slate-900">{r.title}</div>
+                <div className="text-xs text-slate-500">Lead: {r.lead_name} • {r.funding_agency ?? r.patent_no ?? r.year}</div>
+              </div>
+              <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{r.grant_amount > 0 ? inr0(r.grant_amount) : r.status}</span>
             </div>
           ))}
         </Card>

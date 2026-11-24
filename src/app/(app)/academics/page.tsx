@@ -45,7 +45,7 @@ export default async function Academics() {
           </ActionForm>
           <div className="mt-3 max-h-40 space-y-1 overflow-y-auto text-sm">
             {calendars.map((c) => (
-              <div key={c.id} className="flex justify-between border-b border-slate-100 py-1"><span><strong>{c.title}</strong> ({c.event_type})</span><span className="text-xs text-slate-500">{fmtDate(c.start_date)}</span></div>
+              <div key={c.id} className="row border-b border-slate-100 py-1"><span><strong>{c.title}</strong> ({c.event_type})</span><span className="text-xs text-slate-500">{fmtDate(c.start_date)}</span></div>
             ))}
           </div>
         </Card>

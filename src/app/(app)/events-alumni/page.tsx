@@ -49,7 +49,7 @@ export default async function EventsAlumni() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Upcoming & Recent Campus Events">
           {events.map((e) => (
-            <div key={e.id} className="flex justify-between border-b border-slate-100 py-2 text-sm last:border-0">
+            <div key={e.id} className="row border-b border-slate-100 py-2 text-sm last:border-0">
               <div><strong>{e.title}</strong> ({e.category})<div className="text-xs text-slate-500">{e.venue} • Budget: {inr0(e.budget)}</div></div>
               <span className="text-xs text-slate-600">{fmtDate(e.event_date)}</span>
             </div>
@@ -57,7 +57,7 @@ export default async function EventsAlumni() {
         </Card>
         <Card title="Alumni Directory & Mentors">
           {alumni.map((a) => (
-            <div key={a.id} className="flex justify-between border-b border-slate-100 py-2 text-sm last:border-0">
+            <div key={a.id} className="row border-b border-slate-100 py-2 text-sm last:border-0">
               <div><strong>{a.full_name}</strong> (Batch {a.graduation_year})<div className="text-xs text-slate-500">{a.designation} @ {a.current_company}</div></div>
               <div className="text-right">{a.is_mentor && <Badge tone="indigo">Mentor</Badge>}<div className="text-xs text-slate-500">Donated: {inr0(a.donation_total)}</div></div>
             </div>

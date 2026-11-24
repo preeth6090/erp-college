@@ -13,7 +13,7 @@ export default async function Verify({ params }: { params: Promise<{ token: stri
         <>
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-3xl text-emerald-600">✓</div>
           <h1 className="text-xl font-bold">Authentic Digital Certificate</h1>
-          <p className="mb-4 text-xs text-slate-500">Verified by College ERP Institutional Registry</p>
+          <p className="mb-4 text-xs text-slate-500">Verified by the VidyaOS Institutional Registry</p>
           <div className="space-y-1 text-left text-sm">
             <div><strong>Certificate No:</strong> {c.certificate_no}</div>
             <div><strong>Type:</strong> {c.certificate_type} Certificate</div>

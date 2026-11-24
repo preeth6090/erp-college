@@ -60,7 +60,7 @@ export default async function Finance() {
           </Card>
           <Card title="Fixed Assets & Depreciation">
             {assets.map((a) => (
-              <div key={a.id} className="flex justify-between border-b border-slate-100 py-2 text-sm last:border-0">
+              <div key={a.id} className="row border-b border-slate-100 py-2 text-sm last:border-0">
                 <span>{a.asset_code} - {a.name}</span><span className="text-xs text-slate-500">Value: {inr0(a.current_value)} ({a.depreciation_rate}% dep)</span>
               </div>
             ))}

@@ -38,7 +38,7 @@ export default async function StudentPortal() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="My Weekly Timetable">
           {timetable.length === 0 && <p className="text-sm text-slate-400">No timetable published yet.</p>}
-          {timetable.map((s) => <div key={s.id} className="flex justify-between border-b border-slate-100 py-1.5 text-sm last:border-0"><span><strong>{s.day_of_week}</strong> ({hhmm(s.start_time)}-{hhmm(s.end_time)}) • {s.subject.name}</span><span className="text-xs text-slate-500">{s.room_no}</span></div>)}
+          {timetable.map((s) => <div key={s.id} className="row border-b border-slate-100 py-1.5 text-sm last:border-0"><span><strong>{s.day_of_week}</strong> ({hhmm(s.start_time)}-{hhmm(s.end_time)}) • {s.subject.name}</span><span className="text-xs text-slate-500">{s.room_no}</span></div>)}
         </Card>
         <Card title="Submit LMS Assignment">
           <ActionForm action={submitAssignment}>

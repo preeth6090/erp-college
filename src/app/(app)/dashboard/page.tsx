@@ -153,10 +153,10 @@ export default async function Dashboard() {
   return (
     <div className="space-y-6">
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-700 via-violet-700 to-fuchsia-700 p-5 text-white shadow-xl shadow-indigo-900/20 sm:p-7">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-700 to-violet-600 p-5 text-white shadow-xl shadow-indigo-900/25 sm:p-7">
         <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '22px 22px' }} />
         <div className="pointer-events-none absolute -right-16 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-fuchsia-300/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-amber-300/20 blur-3xl" />
         <div className="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
@@ -175,8 +175,8 @@ export default async function Dashboard() {
           </div>
           <div className="flex items-center justify-around gap-6 rounded-2xl bg-white/10 p-4 backdrop-blur sm:justify-center sm:gap-8 sm:p-5">
             <Ring value={todayAtt} label="Attendance today" />
-            <Ring value={feePct} label="Fees collected" color="#fcd34d" />
-            <Ring value={conv} label="Enquiry conversion" color="#6ee7b7" />
+            <Ring value={feePct} label="Fees collected" color="#f5c957" />
+            <Ring value={conv} label="Enquiry conversion" color="#9ccb82" />
           </div>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default async function Dashboard() {
       {/* ── Trends ── */}
       <div className="grid gap-4 xl:grid-cols-3">
         <Panel title="Fee collection" subtitle="Last 6 months · completed payments" icon={Receipt} className="xl:col-span-2">
-          <div className="h-64"><LineChart labels={monthLabels} series={[{ label: 'Collected', data: feeByMonth, color: '#6366f1' }]} money /></div>
+          <div className="h-64"><LineChart labels={monthLabels} series={[{ label: 'Collected', data: feeByMonth, color: '#274a98' }]} money /></div>
         </Panel>
         <Panel title="Finance snapshot" subtitle="Revenue vs expense vs dues" icon={Landmark}>
           <div className="h-64"><DoughnutChart labels={['Revenue', 'Expense', 'Outstanding fees']} data={[income, expense, outstanding]} colors={['#10b981', '#f43f5e', '#f59e0b']} money /></div>

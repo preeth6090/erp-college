@@ -38,7 +38,7 @@ export default async function ParentPortal({ searchParams }: { searchParams: Pro
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Recent Exam Results" actions={<Link href={`/students/${child.id}/marksheet`} target="_blank" className="text-xs text-indigo-600">Full marksheet →</Link>}>
-          {child.examMarks.map((m) => <div key={m.id} className="flex justify-between border-b border-slate-100 py-1.5 text-sm last:border-0"><span>{m.subject.code} - {m.subject.name}</span><span className="font-medium">{m.total_marks}/100 ({m.grade})</span></div>)}
+          {child.examMarks.map((m) => <div key={m.id} className="row border-b border-slate-100 py-1.5 text-sm last:border-0"><span>{m.subject.code} - {m.subject.name}</span><span className="font-medium">{m.total_marks}/100 ({m.grade})</span></div>)}
         </Card>
         <Card title="College Notices & Emergency Alerts">
           {announcements.map((a) => <div key={a.id} className="border-b border-slate-100 py-2 text-sm last:border-0"><strong>{a.title}</strong><div className="text-xs text-slate-600">{a.message}</div></div>)}

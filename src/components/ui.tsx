@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
 
 export const inputCls =
   'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500';
@@ -45,10 +45,17 @@ export function Stat({ label, value, hint, tone = 'indigo' }: { label: string; v
 }
 
 export function Table({ head, children, empty }: { head: string[]; children: ReactNode; empty?: string }) {
-  const hasRows = Array.isArray(children) ? children.length > 0 : !!children;
+  const rows = Children.toArray(children);
+  const hasRows = rows.length > 0;
+  // give every cell its column title so phones can show it as a labelled card
+  const labelled = rows.map((row) => {
+    if (!isValidElement(row) || row.type !== 'tr') return row;
+    const r = row as ReactElement<{ children?: ReactNode }>;
+    return cloneElement(r, undefined, Children.map(r.props.children, (cell, i) => (isValidElement(cell) ? cloneElement(cell as ReactElement<{ label?: string }>, { label: head[i] }) : cell)));
+  });
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm">
+      <table className="cards w-full text-left text-sm">
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50/70 text-[11px] uppercase tracking-wider text-slate-500">
             {head.map((h) => (
@@ -56,14 +63,14 @@ export function Table({ head, children, empty }: { head: string[]; children: Rea
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">{children}</tbody>
+        <tbody className="divide-y divide-slate-100">{labelled}</tbody>
       </table>
       {!hasRows && <p className="px-3 py-6 text-center text-sm text-slate-400">{empty ?? 'No records yet.'}</p>}
     </div>
   );
 }
-export const Td = ({ children, className = '' }: { children?: ReactNode; className?: string }) => (
-  <td className={`px-3 py-2 align-top ${className}`}>{children}</td>
+export const Td = ({ children, className = '', label }: { children?: ReactNode; className?: string; label?: string }) => (
+  <td data-label={label} className={`px-3 py-2 align-top ${className}`}><div className="td-v">{children}</div></td>
 );
 
 const badgeTones: Record<string, string> = {

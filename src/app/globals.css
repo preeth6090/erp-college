@@ -4,6 +4,17 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
+/* Brand palette (from the VidyaOS logo): navy, leaf green, gold.
+   The UI uses Tailwind's indigo / violet / fuchsia names, so those scales are remapped to the brand colours. */
+@theme {
+  --color-indigo-50: #eef2fb; --color-indigo-100: #dbe4f6; --color-indigo-200: #b9c9ec; --color-indigo-300: #8ba5dc; --color-indigo-400: #5c7ec8;
+  --color-indigo-500: #3a5fb0; --color-indigo-600: #274a98; --color-indigo-700: #1c3a7d; --color-indigo-800: #152d63; --color-indigo-900: #102350; --color-indigo-950: #0a1738;
+  --color-violet-50: #f1f8ec; --color-violet-100: #e0f0d6; --color-violet-200: #c3e1b0; --color-violet-300: #9ccb82; --color-violet-400: #75b256;
+  --color-violet-500: #5a9a3f; --color-violet-600: #488033; --color-violet-700: #3a662b; --color-violet-800: #315226; --color-violet-900: #2a4522; --color-violet-950: #13250f;
+  --color-fuchsia-50: #fef9ec; --color-fuchsia-100: #fcf0c9; --color-fuchsia-200: #f9e08f; --color-fuchsia-300: #f5c957; --color-fuchsia-400: #efb532;
+  --color-fuchsia-500: #e6a82b; --color-fuchsia-600: #c9871a; --color-fuchsia-700: #a66816; --color-fuchsia-800: #865217; --color-fuchsia-900: #6f4416; --color-fuchsia-950: #3f2308;
+}
+
 @media print {
   .no-print { display: none !important; }
   body { background: #fff !important; }
@@ -25,8 +36,26 @@ img, svg, canvas { max-width: 100%; }
   summary { padding-block: 6px; }
 }
 /* long words / emails / tokens never push the page wider */
-main { overflow-wrap: anywhere; }
+main { overflow-wrap: break-word; }
 
 /* View-only staff: hide forms that change data (and cards that exist only to hold such a form) */
 [data-readonly='true'] form[data-edit] { display: none; }
 [data-readonly='true'] section:has(form[data-edit]):not(:has(table)):not(:has(.keep-readonly)) { display: none; }
+
+/* Tables become stacked cards on phones (each cell shows its column label) */
+@media screen and (max-width: 639px) {
+  table.cards, table.cards tbody { display: block; width: 100%; }
+  table.cards thead { display: none; }
+  table.cards tbody > tr { display: block; margin-bottom: 10px; padding: 4px 14px; border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(15, 23, 42, .04); }
+  table.cards td { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 9px 0 !important; border-bottom: 1px dashed #eef2f7; text-align: right; min-width: 0; }
+  table.cards td:last-child { border-bottom: 0; }
+  table.cards td::before { content: attr(data-label); flex: 0 0 34%; max-width: 34%; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #64748b; padding-top: 2px; }
+  table.cards td .td-v { flex: 1 1 0; min-width: 0; text-align: right; }
+  table.cards td .td-v form, table.cards td .td-v > div.flex { justify-content: flex-end; }
+  table.cards td:not([data-label])::before, table.cards td[data-label='']::before { display: none; }
+}
+
+/* List rows: text on the left, a value on the right; the value drops below on narrow screens instead of being squeezed */
+.row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 4px 12px; }
+.row > :first-child { flex: 1 1 15rem; min-width: 0; }
+.row > :last-child:not(:first-child) { flex: 0 0 auto; white-space: nowrap; }

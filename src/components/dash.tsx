@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { ArrowDownRight, ArrowUpRight, ChevronRight, type LucideIcon } from 'lucide-react';
 
 /** Tiny inline SVG sparkline (server-renderable). */
-export function Sparkline({ data, color = '#4f46e5' }: { data: number[]; color?: string }) {
+export function Sparkline({ data, color = '#274a98' }: { data: number[]; color?: string }) {
   if (data.length < 2) return null;
   const w = 96, h = 34, max = Math.max(...data, 1), min = Math.min(...data, 0);
   const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - 4 - ((v - min) / (max - min || 1)) * (h - 8)}`);
@@ -18,12 +18,12 @@ export function Sparkline({ data, color = '#4f46e5' }: { data: number[]; color?:
 }
 
 const tones = {
-  indigo: { tile: 'bg-indigo-50 text-indigo-600 ring-indigo-100', hex: '#6366f1', bar: 'from-indigo-500 to-violet-500' },
-  emerald: { tile: 'bg-emerald-50 text-emerald-600 ring-emerald-100', hex: '#10b981', bar: 'from-emerald-500 to-teal-500' },
+  indigo: { tile: 'bg-indigo-50 text-indigo-600 ring-indigo-100', hex: '#274a98', bar: 'from-indigo-500 to-violet-500' },
+  emerald: { tile: 'bg-emerald-50 text-emerald-600 ring-emerald-100', hex: '#5a9a3f', bar: 'from-emerald-500 to-teal-500' },
   amber: { tile: 'bg-amber-50 text-amber-600 ring-amber-100', hex: '#f59e0b', bar: 'from-amber-500 to-orange-500' },
   rose: { tile: 'bg-rose-50 text-rose-600 ring-rose-100', hex: '#f43f5e', bar: 'from-rose-500 to-pink-500' },
   sky: { tile: 'bg-sky-50 text-sky-600 ring-sky-100', hex: '#0ea5e9', bar: 'from-sky-500 to-cyan-500' },
-  violet: { tile: 'bg-violet-50 text-violet-600 ring-violet-100', hex: '#8b5cf6', bar: 'from-violet-500 to-fuchsia-500' },
+  violet: { tile: 'bg-violet-50 text-violet-600 ring-violet-100', hex: '#5a9a3f', bar: 'from-violet-500 to-fuchsia-500' },
 } as const;
 export type Tone = keyof typeof tones;
 
@@ -103,7 +103,7 @@ export function Ring({ value, label, size = 84, color = '#fff' }: { value: numbe
 
 export function Funnel({ steps }: { steps: { label: string; value: number; icon: LucideIcon }[] }) {
   const max = Math.max(...steps.map((s) => s.value), 1);
-  const shades = ['from-indigo-600 to-indigo-500', 'from-indigo-500 to-violet-500', 'from-violet-500 to-fuchsia-500', 'from-fuchsia-500 to-pink-500', 'from-emerald-500 to-teal-500'];
+  const shades = ['from-indigo-700 to-indigo-600', 'from-indigo-600 to-indigo-500', 'from-violet-600 to-violet-500', 'from-fuchsia-600 to-fuchsia-500', 'from-violet-500 to-violet-400'];
   return (
     <div className="space-y-2.5">
       {steps.map((s, i) => (
