@@ -22,9 +22,12 @@
  * 1. Open the Google Sheet where submissions land.
  * 2. Extensions > Apps Script. Select ALL the existing code, delete it, and
  *    paste this whole file in.
- * 3. IMPORTANT — put your real SendGrid key back: replace
- *    REPLACE_WITH_YOUR_SENDGRID_API_KEY below with the key from your OLD
- *    script (copy it before you delete the old code). Skip it and emails stop.
+ * 3. (Optional — confirmation emails.) Emails are sent from timestampindia.info.
+ *    In SendGrid: Settings > Sender Authentication > Authenticate Your Domain >
+ *    timestampindia.info, add the DNS records it shows, click Verify. Then
+ *    Settings > API Keys > Create API Key (Mail Send permission) and paste it
+ *    over REPLACE_WITH_YOUR_SENDGRID_API_KEY below. Until a key is pasted, no
+ *    emails are sent (the lead sync to VidyaOS does not need it).
  * 4. Project Settings (gear icon) > Script properties > add:
  *      ENDPOINT = https://visionpu-erp.vercel.app/api/leads/website
  *      TOKEN    = (the lead-sync token you were given)
@@ -40,8 +43,9 @@
 
 const SENDGRID_API_KEY = 'REPLACE_WITH_YOUR_SENDGRID_API_KEY'
 const ADMIN_EMAILS = ['admissions@visionedu.in', 'pavithra@visionedu.in']
-const SEND_AS = 'admissions@visionedu.in' // must match your verified Single Sender in SendGrid
+const SEND_AS = 'no-reply@timestampindia.info' // emails are sent FROM this address; its domain must be authenticated in SendGrid
 const SEND_AS_NAME = 'Vision Admissions'
+const REPLY_TO = 'admissions@visionedu.in' // when a parent replies, it goes to the college, not to timestampindia.info
 
 const APPLY_SHEET_NAME = 'Applications'
 const APPLY_COLUMNS = [
@@ -203,6 +207,7 @@ function sendViaSendGrid(toEmail, subject, body) {
   const payload = {
     personalizations: [{ to: [{ email: toEmail }] }],
     from: { email: SEND_AS, name: SEND_AS_NAME },
+    reply_to: { email: REPLY_TO, name: SEND_AS_NAME },
     subject: subject,
     content: [{ type: 'text/plain', value: body }],
   }

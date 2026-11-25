@@ -15,7 +15,7 @@ Leads your website writes into the Google Sheet are pushed to the platform autom
 
 ## One-time setup
 1. **Server:** set the environment variable `LEADS_API_TOKEN` (24+ random characters) and redeploy.
-2. **Sheet:** open *Extensions → Apps Script*, select all the existing code and replace it with [`website-form-script.gs`](./website-form-script.gs) — your original form script plus the VidyaOS sync. Before pasting, copy your real SendGrid key from the old script and put it back in the `SENDGRID_API_KEY` line.
+2. **Sheet:** open *Extensions → Apps Script*, select all the existing code and replace it with [`website-form-script.gs`](./website-form-script.gs) — your original form script plus the VidyaOS sync. Confirmation emails are optional and sent from `timestampindia.info` — see the comment at the top of the script for the SendGrid steps.
 3. **Project Settings (gear) → Script properties:** add `ENDPOINT` = `https://<your-site>/api/leads/website` and `TOKEN` = the same value as `LEADS_API_TOKEN`.
 4. Choose the function **`vosSetup`** and press **Run**; approve the permissions. This creates a 1-minute backup timer and sends every existing row once.
 5. **Deploy → Manage deployments → pencil → Version: New version → Deploy** (the `/exec` URL does not change).
