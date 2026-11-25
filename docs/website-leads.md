@@ -8,20 +8,19 @@ Leads your website writes into the Google Sheet are pushed to the platform autom
 | **Applications** | The full Apply form (reference no. like `V-2026/Pu-001`) | Enquiry · source **Website** · campaign **Application form** · every field kept in the notes |
 
 ## How it works
-1. A script in the sheet checks for new rows every minute (and when the sheet changes).
+1. Right after each website submission (and every minute as a safety net) the sheet script looks for rows it has not sent yet.
 2. Each new row is sent securely to `POST /api/leads/website` with a secret token.
 3. The platform files it as an enquiry (`status = New`). Duplicates — the same phone number in the last 60 days, or the same application reference — are not created twice.
 4. The script writes the result beside each row in a **VidyaOS sync** column ("Synced … · ENQ-2026-W12345", "Already in VidyaOS", or why it was skipped).
 
-The website's own form script is not changed in any way.
-
 ## One-time setup
 1. **Server:** set the environment variable `LEADS_API_TOKEN` (24+ random characters) and redeploy.
-2. **Sheet:** open *Extensions → Apps Script* (the project that already holds the website form code). Click **+ → Script**, name it `VidyaOSSync`, paste [`VidyaOSSync.gs`](./VidyaOSSync.gs), save. Do **not** redeploy the web app — nothing about the live form changes.
+2. **Sheet:** open *Extensions → Apps Script*, select all the existing code and replace it with [`website-form-script.gs`](./website-form-script.gs) — your original form script plus the VidyaOS sync. Before pasting, copy your real SendGrid key from the old script and put it back in the `SENDGRID_API_KEY` line.
 3. **Project Settings (gear) → Script properties:** add `ENDPOINT` = `https://<your-site>/api/leads/website` and `TOKEN` = the same value as `LEADS_API_TOKEN`.
-4. Choose the function **`vosSetup`** and press **Run**; approve the permissions. This also sends every existing row once.
-5. Submit a test enquiry on the website — within a minute it appears in the platform and the sheet row says "Synced".
+4. Choose the function **`vosSetup`** and press **Run**; approve the permissions. This creates a 1-minute backup timer and sends every existing row once.
+5. **Deploy → Manage deployments → pencil → Version: New version → Deploy** (the `/exec` URL does not change).
+6. Submit a test enquiry on the website — it appears in the platform immediately and the sheet row says "Synced".
 
-**Optional — instant instead of ~1 minute:** at the end of `handleEnquiry` and `handleApply` in the website script (just before `return respond({ success: true … })`) add `try { vosSyncNewLeads() } catch (e) {}`. Then redeploy that web app as a new version.
+The form handling is the original code; the only changes are one `vosInstantSync_()` line before each handler returns. If the platform is unreachable the website form still succeeds, and the 1-minute timer retries the unsent rows. Set `VOS_INSTANT = false` to rely on the timer only.
 
 To stop the sync: Apps Script → Triggers → delete the two `vosSyncNewLeads` triggers, or change `LEADS_API_TOKEN` on the server.
