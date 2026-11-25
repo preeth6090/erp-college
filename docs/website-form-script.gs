@@ -22,12 +22,11 @@
  * 1. Open the Google Sheet where submissions land.
  * 2. Extensions > Apps Script. Select ALL the existing code, delete it, and
  *    paste this whole file in.
- * 3. (Optional — confirmation emails.) Emails are sent from timestampindia.info.
- *    In SendGrid: Settings > Sender Authentication > Authenticate Your Domain >
- *    timestampindia.info, add the DNS records it shows, click Verify. Then
- *    Settings > API Keys > Create API Key (Mail Send permission) and paste it
- *    over REPLACE_WITH_YOUR_SENDGRID_API_KEY below. Until a key is pasted, no
- *    emails are sent (the lead sync to VidyaOS does not need it).
+ * 3. (Optional — confirmation emails.) Emails are sent with Resend from
+ *    timestampindia.tech (already set up in DNS). In Resend: confirm the
+ *    domain shows "Verified", then API Keys > Create API Key (Sending access)
+ *    and paste it over REPLACE_WITH_YOUR_RESEND_API_KEY below. Until a key is
+ *    pasted, no emails are sent (the VidyaOS lead sync does not need it).
  * 4. Project Settings (gear icon) > Script properties > add:
  *      ENDPOINT = https://visionpu-erp.vercel.app/api/leads/website
  *      TOKEN    = (the lead-sync token you were given)
@@ -41,11 +40,11 @@
  *    Enquiry & CRM with source "Website".
  */
 
-const SENDGRID_API_KEY = 'REPLACE_WITH_YOUR_SENDGRID_API_KEY'
+const RESEND_API_KEY = 'REPLACE_WITH_YOUR_RESEND_API_KEY'
 const ADMIN_EMAILS = ['admissions@visionedu.in', 'pavithra@visionedu.in']
-const SEND_AS = 'no-reply@timestampindia.info' // emails are sent FROM this address; its domain must be authenticated in SendGrid
+const SEND_AS = 'no-reply@timestampindia.tech' // emails are sent FROM this address; its domain must be verified in Resend
 const SEND_AS_NAME = 'Vision Admissions'
-const REPLY_TO = 'admissions@visionedu.in' // when a parent replies, it goes to the college, not to timestampindia.info
+const REPLY_TO = 'admissions@visionedu.in' // when a parent replies, it goes to the college, not to timestampindia.tech
 
 const APPLY_SHEET_NAME = 'Applications'
 const APPLY_COLUMNS = [
@@ -202,22 +201,39 @@ function getOrCreateSheet(name, columns) {
   return sheet
 }
 
-function sendViaSendGrid(toEmail, subject, body) {
-  if (SENDGRID_API_KEY === 'REPLACE_WITH_YOUR_SENDGRID_API_KEY') return
-  const payload = {
-    personalizations: [{ to: [{ email: toEmail }] }],
-    from: { email: SEND_AS, name: SEND_AS_NAME },
-    reply_to: { email: REPLY_TO, name: SEND_AS_NAME },
+// Emails are collected while a submission is handled and sent in ONE request at the end. Resend allows
+// only ~2 requests per second, so three separate calls (two admins + the applicant) would be refused.
+const OUTBOX = []
+
+function sendEmail(toEmail, subject, body) {
+  OUTBOX.push({
+    from: `${SEND_AS_NAME} <${SEND_AS}>`,
+    to: [toEmail],
+    reply_to: REPLY_TO,
     subject: subject,
-    content: [{ type: 'text/plain', value: body }],
-  }
-  UrlFetchApp.fetch('https://api.sendgrid.com/v3/mail/send', {
+    text: body,
+  })
+}
+
+function flushEmails() {
+  const batch = OUTBOX.splice(0, OUTBOX.length)
+  if (RESEND_API_KEY === 'REPLACE_WITH_YOUR_RESEND_API_KEY' || batch.length === 0) return
+  UrlFetchApp.fetch('https://api.resend.com/emails/batch', {
     method: 'post',
     contentType: 'application/json',
-    headers: { Authorization: `Bearer ${SENDGRID_API_KEY}` },
-    payload: JSON.stringify(payload),
+    headers: { Authorization: `Bearer ${RESEND_API_KEY}` },
+    payload: JSON.stringify(batch),
     muteHttpExceptions: true, // so a bad API key shows up in Executions instead of throwing silently
   })
+}
+
+// An email problem must never turn an already-saved submission into a "failed" one on the website.
+function flushEmailsSafely() {
+  try {
+    flushEmails()
+  } catch (err) {
+    console.error('Email send failed: ' + err)
+  }
 }
 
 function handleApply(data, respond) {
@@ -283,7 +299,7 @@ function handleApply(data, respond) {
     .join('\n')
 
   ADMIN_EMAILS.forEach((adminEmail) => {
-    sendViaSendGrid(
+    sendEmail(
       adminEmail,
       `New Application ${referenceNumber} — ${data.studentName} (${data.programType})`,
       `A new application was submitted.\n\n${summaryLines}`
@@ -291,7 +307,7 @@ function handleApply(data, respond) {
   })
 
   if (data.studentEmail) {
-    sendViaSendGrid(
+    sendEmail(
       data.studentEmail,
       `Application Received — Reference Number ${referenceNumber}`,
       `Dear ${data.studentName},\n\n` +
@@ -303,6 +319,7 @@ function handleApply(data, respond) {
     )
   }
 
+  flushEmailsSafely()
   vosInstantSync_() // VidyaOS: send this new application right away (never blocks or breaks the form)
   return respond({ success: true, referenceNumber: referenceNumber })
 }
@@ -339,7 +356,7 @@ function handleEnquiry(data, respond) {
   )
 
   ADMIN_EMAILS.forEach((adminEmail) => {
-    sendViaSendGrid(
+    sendEmail(
       adminEmail,
       `New Enquiry — ${data.studentName} (${data.source || 'Website'})`,
       `A new enquiry was submitted.\n\n` +
@@ -354,6 +371,7 @@ function handleEnquiry(data, respond) {
     )
   })
 
+  flushEmailsSafely()
   vosInstantSync_() // VidyaOS: send this new enquiry right away (never blocks or breaks the form)
   return respond({ success: true })
 }
