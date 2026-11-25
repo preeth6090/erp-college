@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const groups = NAV.map((g) => ({
     ...g,
     // admins preview every portal; everyone else sees only their own role's portal
-    items: g.items.filter((i) => (i.ownerOnly ? isOwner(user) : i.module ? can(user, i.module) : isOwner(user) || (i.roles ?? []).includes(slug))),
+    items: g.items.filter((i) => i.home ? !isOwner(user) && MODULES.some((m) => can(user, m.key)) : (i.ownerOnly ? isOwner(user) : i.module ? can(user, i.module) : isOwner(user) || (i.roles ?? []).includes(slug))),
   })).filter((g) => g.items.length);
   const viewOnly = MODULES.filter((m) => can(user, m.key) && !can(user, m.key, 'edit')).map((m) => m.key);
 

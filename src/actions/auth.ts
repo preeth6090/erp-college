@@ -29,7 +29,7 @@ export async function login(_prev: LoginState, fd: FormData): Promise<LoginState
   const now = new Date();
 
   const user = await db.user.findUnique({ where: { email }, include: { role: true } });
-  if (!user) { await log(null, 'LOGIN_FAILED', `Unknown account: ${email}`); return { error: GENERIC, email }; }
+  if (!user) { await log(null, 'LOGIN_FAILED', `Unknown account: ${email}`); return { error: 'No account exists with this email address.', email }; }
 
   if (user.locked_until && user.locked_until > now) {
     await log(user.id, 'LOGIN_BLOCKED', `Sign-in blocked (account locked): ${email}`);
@@ -38,7 +38,7 @@ export async function login(_prev: LoginState, fd: FormData): Promise<LoginState
   }
   if (user.status !== 'Active' || (user.access_expires_at && user.access_expires_at < now)) {
     await log(user.id, 'LOGIN_BLOCKED', `Sign-in blocked (${user.status !== 'Active' ? 'inactive' : 'access expired'}): ${email}`);
-    return { error: user.status === 'Active' ? 'Your temporary access has expired. Please contact the administrator.' : GENERIC, email };
+    return { error: user.status === 'Active' ? 'Your temporary access has expired. Please contact the administrator.' : 'This account is inactive. Please contact the administrator.', email };
   }
 
   if (!(await bcrypt.compare(parsed.data.password, user.password))) {
@@ -50,7 +50,8 @@ export async function login(_prev: LoginState, fd: FormData): Promise<LoginState
     }
     await db.user.update({ where: { id: user.id }, data: { failed_attempts: attempts } });
     await log(user.id, 'LOGIN_FAILED', `Wrong password (${attempts}/${policy.max_failed_attempts || '∞'}): ${email}`);
-    return { error: GENERIC, email };
+    const left = policy.max_failed_attempts > 0 ? policy.max_failed_attempts - attempts : 0;
+    return { error: `Wrong password.${left > 0 ? ` ${left} attempt${left === 1 ? '' : 's'} left before this account is locked.` : ''}`, email };
   }
 
   // Success — but an institution whose subscription is suspended/ended cannot sign in (the owner always can)

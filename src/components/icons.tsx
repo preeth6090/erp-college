@@ -1,11 +1,11 @@
 import {
   Award, BadgeCheck, Crown, BedDouble, BookOpen, Briefcase, Bus, CalendarCheck, CalendarDays, ClipboardCheck, FileText, FlaskConical, GraduationCap,
   Headset, KeyRound, Landmark, LayoutDashboard, Megaphone, MonitorPlay, Package, PartyPopper, School, Settings, ShieldAlert, UserCog, UserRound,
-  Users, Wallet, Banknote, type LucideIcon,
+  Users, Wallet, Banknote, Home, type LucideIcon,
 } from 'lucide-react';
 
 const MAP: Record<string, LucideIcon> = {
-  dashboard: LayoutDashboard, admissions: FileText, enquiries: Headset, students: GraduationCap, academics: School, timetable: CalendarDays,
+  home: Home, dashboard: LayoutDashboard, admissions: FileText, enquiries: Headset, students: GraduationCap, academics: School, timetable: CalendarDays,
   attendance: CalendarCheck, exams: ClipboardCheck, library: BookOpen, fees: Wallet, finance: Landmark, hr: Users, payroll: Banknote,
   procurement: Package, hostel: BedDouble, transport: Bus, lms: MonitorPlay, placements: Briefcase, scholarships: Award, certificates: BadgeCheck,
   grievances: ShieldAlert, events: PartyPopper, accreditation: FlaskConical, communication: Megaphone, team: UserCog, access: KeyRound,

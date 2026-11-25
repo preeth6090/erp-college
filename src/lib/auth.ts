@@ -102,10 +102,11 @@ export function homeFor(u: { role: { slug: string } | null; perms: Set<string>; 
   if (slug === 'student') return '/portal/student';
   if (slug === 'faculty') return '/portal/faculty';
   if (slug === 'parent') return '/portal/parent';
-  if (slug === 'super_admin') return (MODULES.find((m) => on(m.key)) ?? { href: '/welcome' }).href;
+  if (slug === 'super_admin') return MODULES.some((m) => on(m.key)) ? (on('dashboard') ? '/dashboard' : '/home') : '/welcome';
   // land on the first module they can *work in*, otherwise the first they can view
   const first = MODULES.find((m) => on(m.key) && u.perms.has(`${m.key}:edit`)) ?? MODULES.find((m) => on(m.key) && u.perms.has(`${m.key}:view`));
-  return first ? first.href : '/welcome';
+  if (!first) return '/welcome';
+  return on('dashboard') && u.perms.has('dashboard:view') ? '/dashboard' : '/home';
 }
 
 export function hasRole(user: SessionUser, roles: Role[]) {

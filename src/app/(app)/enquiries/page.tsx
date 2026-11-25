@@ -3,6 +3,8 @@ import { requireModule } from '@/lib/auth';
 import { ActionForm, SubmitButton } from '@/components/forms';
 import { Badge, Card, FormGrid, Input, PageHeader, Select, Table, Td, Textarea, inputCls } from '@/components/ui';
 import { fmtDate } from '@/lib/format';
+import { getDigestConfig } from '@/lib/digest';
+import { saveDigest, sendTestDigest } from '@/actions/digest';
 import { addFollowup, bulkNotifyEnquiries, storeEnquiry } from '@/actions/admissions';
 
 export const metadata = { title: 'Enquiry & Admission CRM' };
@@ -11,6 +13,7 @@ export const dynamic = 'force-dynamic';
 export default async function Enquiries({ searchParams }: { searchParams: Promise<{ source?: string; status?: string }> }) {
   await requireModule('enquiries');
   const { source, status } = await searchParams;
+  const digest = await getDigestConfig();
   const [enquiries, courses, counsellors] = await Promise.all([
     db.admissionEnquiry.findMany({ where: { ...(source ? { source } : {}), ...(status ? { status } : {}) }, include: { course: true }, orderBy: { created_at: 'desc' }, take: 500 }),
     db.course.findMany(),
@@ -43,6 +46,20 @@ export default async function Enquiries({ searchParams }: { searchParams: Promis
           </ActionForm>
         </Card>
       </div>
+      <Card title="Morning digest — one email at 7:00 AM">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <ActionForm action={saveDigest} reset={false}>
+            <p className="text-xs text-slate-500">Every morning at about 7:00 AM IST one email lists everything new since the last one (website leads first) and the follow-ups due.</p>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="enabled" defaultChecked={digest.enabled} /> Send the morning digest</label>
+            <Textarea label="Send to (emails, separated by commas)" name="recipients" defaultValue={digest.recipients.join(', ')} placeholder="admissions@yourcollege.in, principal@yourcollege.in" />
+            <SubmitButton>Save</SubmitButton>
+          </ActionForm>
+          <ActionForm action={sendTestDigest} reset={false}>
+            <p className="text-xs text-slate-500">{digest.last_sent ? `Last sent ${fmtDate(digest.last_sent)}.` : 'Not sent yet.'} A test sends the last 24 hours to your own email only.</p>
+            <SubmitButton tone="slate">Send me a test now</SubmitButton>
+          </ActionForm>
+        </div>
+      </Card>
       <Card title={`Enquiries (${enquiries.length})`} actions={
         <form method="GET" className="flex flex-wrap gap-2">
           <select name="source" defaultValue={source ?? ''} className={inputCls + ' w-auto py-1 text-xs'}><option value="">All sources</option>{['Website', 'Walk-in', 'Telephone', 'Online', 'Campaign', 'Referral'].map((s) => <option key={s}>{s}</option>)}</select>

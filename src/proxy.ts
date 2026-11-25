@@ -6,7 +6,7 @@ import { jwtVerify, SignJWT } from 'jose';
 //  • each real request (not link prefetches) pushes the session's expiry forward by the idle period,
 //    but never beyond the hard cap set when the user signed in. After that the cookie simply expires.
 // Real role/permission checks happen in getUser()/requireModule() on the server.
-const PUBLIC = ['/login', '/apply', '/track-application', '/verify-certificate', '/forbidden', '/invite', '/api/leads', '/api/logout']; // /api/leads checks its own bearer token
+const PUBLIC = ['/login', '/apply', '/track-application', '/verify-certificate', '/forbidden', '/invite', '/api/leads', '/api/logout', '/api/cron']; // /api/leads checks its own bearer token
 const COOKIE = 'erp_session';
 
 const secret = () => {
